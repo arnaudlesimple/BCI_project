@@ -16,5 +16,7 @@ s = [label, s];
 
 h2.EVENT.POS = h2.EVENT.POS + length(s1);
 h3.EVENT.POS = h3.EVENT.POS + length(s2) + length(s1);
-
 coucou ceci est un test
+<<<<<<< HEAD
+
+>>>>>>> 8903397c586973786c64b4510795d4a55f7b3f36
