@@ -1,8 +1,9 @@
 clc
 clear all
 close all
-addpath(genpath('C:\Users\arnau\Documents\ETUDES\Master\Semestre_3\Brain Computer Interaction\Projects - Common material-20180301\biosig'));
+addpath(genpath('../biosig'));
 filename = 'anonymous.20170613.161402.offline.mi.mi_bhbf.gdf';
+
 [s, h] = sload(filename);
 % s = eeg signal -> we have 16 signal
 % h is the header that gives information of eeg data
