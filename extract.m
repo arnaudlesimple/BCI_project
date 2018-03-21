@@ -25,41 +25,54 @@ sample_rate = h1.SampleRate;
 % Bande mu = [7-14] Hz
 [b,a] = butter(4,[7,14]/sample_rate/2);
 fvtool(b,a)
-mu_data = filter(b,a,s(:,1:end-1));
+mu_data = filter(b,a,s(:,2:end));
 
 % Bande beta = [15-35] Hz
 [b,a] = butter(4,[15,35]/sample_rate/2);
 fvtool(b,a)
-beta_data = filter(b,a,s);
+beta_data = filter(b,a,s(:,2:end));
 
 %% Spatial filtering:
 
 % CAR filtering:
 car_mu_data = [];
 for i = 1:length(mu_data)
-    moy = mean(mu_data(i,:));
+    moy = mean(mu_data(i,1:end-1));
     for j = 1:size(mu_data,2)
         car_mu_data(i,j) = mu_data(i,j) - moy;
     end
 end
 %%
 % Small Laplacian filtering
-map_channels_small = {[4],[3,7],[2,4,8],[1,3,5,9],[4,6,10],[5,11],[2,8,12],[3,7,9,13],1,1,1,1,1,1,1,1};
-
+laplacian = load('laplacian_16_10-20_mi.mat');
 for i = 1:length(mu_data)
-    for j = 1:(size(mu_data,2)-1)
-        moy = mean(mu_data(i,map_channels_small{j}));
-        slap_mu_data(i,j) = mu_data(i,j) - moy;
+    for j = 1:(size(mu_data,2)-1) 
+        sum_channel = 0;
+        for z = 1:(size(laplacian.lap,2)-1) 
+            sum_channel = sum_channel + laplacian.lap(j,z) * mu_data(i,z);
+        end
+        slap_mu_data(i,j) = sum_channel / sum(laplacian.lap(j,:));
     end
 end
 
-%%
-% Large Laplacian filtering
-map_channels_large = {};
+%% Averaging results per class:
 
-for i = 1:length(mu_data)
-    for j = 1:(size(mu_data,2)-1)
-        moy = mean(mu_data(i,map_channels_large{j}));
-        llap_mu_data(i,j) = mu_data(i,j) - moy;
-    end
+% Extraction of data:
+EventId = 773; % right cue
+
+StartPositions = h1.EVENT.POS(h1.EVENT.TYP == EventId);
+MinDuration = min(h1.EVENT.DUR(h1.EVENT.TYP == EventId))
+StopPositions = StartPositions + h1.EVENT.DUR(h1.EVENT.TYP == EventId)-1;
+
+NumTrials = length(StartPositions); % we get 30 trials
+NumChannels = size(s,2) - 2;
+Epoch = zeros(MinDuration, NumChannels, NumTrials);
+
+% Epoching
+for trial_id = 1:NumTrials
+    cstart = StartPositions(trial_id);
+    cstop = cstart + size(Epoch,1)-1;
+    disp(['Right cue for trial ', num2str(trial_id), ' start at ', num2str(cstart), ' and stop at ', num2str(cstop)])
+    Epoch(:,:,trial_id) = s(cstart:cstop, 2:NumChannels+1);
 end
+
