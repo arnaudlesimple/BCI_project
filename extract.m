@@ -42,18 +42,49 @@ for i = 1:length(mu_data)
         car_mu_data(i,j) = mu_data(i,j) - moy;
     end
 end
-%%
+
+%% Laplacian filter
+ 
 % Small Laplacian filtering
-laplacian = load('laplacian_16_10-20_mi.mat');
-for i = 1:length(mu_data)
-    for j = 1:(size(mu_data,2)-1) 
-        sum_channel = 0;
-        for z = 1:(size(laplacian.lap,2)-1) 
-            sum_channel = sum_channel + laplacian.lap(j,z) * mu_data(i,z);
-        end
-        slap_mu_data(i,j) = sum_channel / sum(laplacian.lap(j,:));
-    end
-end
+small_laplacian = load('laplacian_16_10-20_mi.mat');
+slap_mu_data = mu_data(:,1:end-1) * small_laplacian.lap;
+
+% Large laplacian filter
+large_laplacian = load('big_laplacian.mat');
+
+% Small Laplacian filtering
+% laplacian = load('laplacian_16_10-20_mi.mat');
+% for i = 1:length(mu_data)
+%     for j = 1:(size(mu_data,2)-1) 
+%         sum_channel = 0;
+%         for z = 1:(size(laplacian.lap,2)-1) 
+%             sum_channel = sum_channel + laplacian.lap(j,z) * mu_data(i,z);
+%         end
+%         slap_mu_data(i,j) = sum_channel / sum(laplacian.lap(j,:));
+%     end
+% end
+
+%% Power spectral density estimate
+
+psd = pwelch(s(:,9),256,128,[],512)
+figure()
+plot(log(psd))
+% we see alpha peak
+% We must check it looks like this for our own signals.
+
+% We get PSD for all temporal signal: but we don't want that:
+% We need a temporal window for FFT
+% Buffer filled every 62.5 ms --> compute spatial filter and then PSD every 62.5 ms
+% This corresponds to 60 Hz. To do on 1s.
+% stop position = start position + 1s.
+
+
+% For topoplots: we represent the PSD for specific time lapse: 
+% What we can do is take the average PSD for each type
+
+% For visualization: we can extract the power by squaring the filtered signal
+% Then we can do a moving average
+
 
 %% Averaging results per class:
 
