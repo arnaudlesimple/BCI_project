@@ -1,7 +1,7 @@
 clc
 clear all
 close all
-addpath(genpath('biosig'));
+addpath(genpath('projects_common_material/biosig'));
 filename1 = 'project2-data-example\anonymous.20170613.161402.offline.mi.mi_bhbf.gdf';
 filename2 = 'project2-data-example\anonymous.20170613.162331.offline.mi.mi_bhbf.gdf';
 filename3 = 'project2-data-example\anonymous.20170613.162934.offline.mi.mi_bhbf.gdf';
@@ -47,22 +47,11 @@ end
  
 % Small Laplacian filtering
 small_laplacian = load('laplacian_16_10-20_mi.mat');
-slap_mu_data = mu_data(:,1:end-1) * small_laplacian.lap;
+small_lap_mu_data = mu_data(:,1:end-1) * small_laplacian.lap;
 
 % Large laplacian filter
 large_laplacian = load('big_laplacian.mat');
-
-% Small Laplacian filtering
-% laplacian = load('laplacian_16_10-20_mi.mat');
-% for i = 1:length(mu_data)
-%     for j = 1:(size(mu_data,2)-1) 
-%         sum_channel = 0;
-%         for z = 1:(size(laplacian.lap,2)-1) 
-%             sum_channel = sum_channel + laplacian.lap(j,z) * mu_data(i,z);
-%         end
-%         slap_mu_data(i,j) = sum_channel / sum(laplacian.lap(j,:));
-%     end
-% end
+large_lap_mu_data = mu_data(:,1:end-1) * small_laplacian.lap;
 
 %% Power spectral density estimate
 
@@ -77,6 +66,32 @@ plot(log(psd))
 % Buffer filled every 62.5 ms --> compute spatial filter and then PSD every 62.5 ms
 % This corresponds to 60 Hz. To do on 1s.
 % stop position = start position + 1s.
+%Fixation = 786
+%Both Hands/Right Cue = 773;
+%Both Feet/Left Cue = 771;
+%Continuous Feedback = 781;
+%Boom Target Hit = 897;
+%Boom Target Miss = 898;
+
+
+EventId = 773;
+StartPositions = h1.EVENT.POS(h1.EVENT.TYP==EventId);
+StopPositions = StartPositions + 511;
+psd = [];
+
+NumChannels = size(s,2)-2;
+psd_mean = [];
+figure()
+for j = 2:NumChannels+1
+    psd = [];
+    for i = 1:size(StartPositions)
+        psd(:,i) = pwelch(s(StartPositions(i):StopPositions(i),j),32,16,[],512);  
+    end
+    length(psd)
+    psd_mean(j,:) = mean(psd,2);
+    plot(log(psd_mean(j,:)))
+    hold on
+end
 
 
 % For topoplots: we represent the PSD for specific time lapse: 
