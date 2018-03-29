@@ -58,11 +58,13 @@ large_lap_mu_data = mu_data(:,1:end-1) * small_laplacian.lap;
 psd_final=[];%initialization
 W_final=[]; %normalized frequencies
 
-
-for i = 1:512:(length(s)-512)
+[psd,W] = pwelch(s(1:(1+511),9),256,128,[],512); 
+psd_final(:,1) = psd;
+W_final(:,1) = W;
+for i = 512:512:(length(s)-512)
     [psd,W] = pwelch(s(i:(i+511),9),256,128,[],512); 
-    psd_final(:,i) = psd; %CHANGER L'INDICE : pour i=512, on doit remplir la colomne 2 !!
-    W_final(:,i) = W; % PAREIL
+    psd_final(:,(i/512)+1) = psd; %CHANGER L'INDICE : pour i=512, on doit remplir la colomne 2 !!
+    W_final(:,(i/512)+1) = W; % PAREIL
     
 end
 %%
