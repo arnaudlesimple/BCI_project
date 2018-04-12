@@ -68,19 +68,15 @@ large_lap_mu_data = mu_data(:,1:end-1) * small_laplacian.lap;
 %     
 % end
 %%
-time_window = 1; % in seconds
+time_window = 1;
 freq_s = 512;
-time_overlap = 0.0625; % in seconds
+time_overlap =
 
-n_electrode = 10
-%for n_electrode = 2:NumChannels+1
-[psdt, w, t] = spectrogram(s(:,n_electrode),time_window * freq_s, time_overlap * freq_s, [] ,512, 'power');
-%end
-plot(psdt)
+for n_electrode = 2:NumChannels+1
+    s = spectrogram(s(:,n_electrode),time_window * freq_s,noverlap)
+%     [psd(:,i-1),W] = pwelch(s(:,i),256,128,[],512); %psd on the whole signal for each signal
+end
 % spectrogram
-%%
-imagesc(psdt)
-%%
 figure()
 W_unnorm=W*512;
 plot(W_unnorm,log(psd))
