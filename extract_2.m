@@ -119,17 +119,21 @@ end
 % The spectrogram function returns complex numbers, which include both magnitude and phase information.
 % we consider only the magnitude
 figure()
-for channel = 1:9
+for channel = 1:16
     AverageEpoch = mean(Epoch(:,:,:,channel),3);
     if channel <= 9
         subplot(3,3,channel)
+    elseif channel == 10
+        figure()    
+        subplot(3,3,channel-9)
     else
-        
+        subplot(3,3,channel-9)
+    end
     imagesc(abs(AverageEpoch))
     title(['right cue channel ' mat2str(channel)])
+    ylabel('frequency')
+    xlabel('time')
 end
-ylabel('frequency')
-xlabel('time')
 
 
 %%
@@ -139,56 +143,4 @@ plot(W_unnorm,log(psd))
 % we see alpha peak
 % We must check it looks like this for our own signals.
 
-%% Power spectral density estimate
 
-% psd_final=[];%initialization
-% W_final=[]; %normalized frequencies
-% 
-% [psd,W] = pwelch(s(1:(1+511),9),256,128,[],512); 
-% psd_final(:,1) = psd;
-% W_final(:,1) = W;
-% for i = 512:512:(length(s)-512)
-%     [psd,W] = pwelch(s(i:(i+511),9),256,128,[],512); 
-%     psd_final(:,(i/512)+1) = psd; %CHANGER L'INDICE : pour i=512, on doit remplir la colomne 2 !!
-%     W_final(:,(i/512)+1) = W; % PAREIL
-%     
-% end
-
-% % We get PSD for all temporal signal: but we don't want that:
-% % We need a temporal window for FFT
-% % Buffer filled every 62.5 ms --> compute spatial filter and then PSD every 62.5 ms
-% % This corresponds to 60 Hz. To do on 1s.
-% % stop position = start position + 1s.
-% %Fixation = 786
-% %Both Hands/Right Cue = 773;
-% %Both Feet/Left Cue = 771;
-% %Continuous Feedback = 781;
-% %Boom Target Hit = 897;
-% %Boom Target Miss = 898;
-% 
-% 
-% EventId = 773;
-% StartPositions = h1.EVENT.POS(h1.EVENT.TYP==EventId);
-% StopPositions = StartPositions + 511;
-% psd = [];
-% 
-% NumChannels = size(s,2)-2;
-% psd_mean = [];
-% figure()
-% for j = 2:NumChannels+1
-%     psd = [];
-%     for i = 1:size(StartPositions)
-%         psd(:,i) = pwelch(s(StartPositions(i):StopPositions(i),j),32,16,[],512);  
-%     end
-%     length(psd)
-%     psd_mean(j,:) = mean(psd,2);
-%     plot(log(psd_mean(j,:)))
-%     hold on
-% end
-% 
-% 
-% % For topoplots: we represent the PSD for specific time lapse: 
-% % What we can do is take the average PSD for each type
-% 
-% % For visualization: we can extract the power by squaring the filtered signal
-% % Then we can do a moving average
