@@ -46,8 +46,8 @@ close all
 
 beta_band=0; %1=on,0=off
 mu_band =0;
-CAR=0;
-SmallLaplacian=1;
+CAR=1;
+SmallLaplacian=0;
 LargeLaplacian=0;
 
 if CAR+SmallLaplacian+LargeLaplacian >1 | beta_band+mu_band >1
@@ -122,14 +122,10 @@ end
 
 if CAR==1   
     car_mu_data = [];
-    for i = 1:length(AllRecBand)
-        moy = mean(AllRecBand(i,2:end)); %moyenne sur tout les canaux à chaque T
-        for j = 2:size(AllRecBand,2)
-            car_mu_data(i,j) = AllRecBand(i,j) - moy;
-            
-        end
-    end
-    FilteredData=[Reclabel,car_mu_data];
+    used_channel=AllRecBand(:,2:end);
+    moyenne=mean(used_channel,2);
+   
+    FilteredData =[Reclabel, used_channel-moyenne];
 end
 
 % Small Laplacian filtering
@@ -172,16 +168,16 @@ window_change=0.0625;
 time_overlap = 1 - window_change; % in seconds
 
 
-frequ_psdt=1/window_change;
+frequ_psdt=1/window_change; %frequ overlap
 
 % 62.5 ms = 16 samples
 Frequencies=[4:2:48];
 
-temps=size(FilteredData,1)/Init_freq;
+temps=size(FilteredData(Reclabel==1,:),1)/Init_freq;
 sample=temps*frequ_psdt-(frequ_psdt-1); %car pour les dernieres on ne peut plus décaler!!
 psdt1=zeros(length(Frequencies),sample,16);
 psdt=zeros(sample,length(Frequencies),16);
-%%
+
 window_start=zeros(sample,1);
 window_end=zeros(sample,1);
 
@@ -191,10 +187,11 @@ window_start(i)=1+(i-1)*(window_change * Init_freq);% = depart absolu*#window*de
 window_end(i)=window_start(i)+(time_window*Init_freq)-1;
 end
 %%
-
+  [ddd, w, t,psdt1(:,:,1)] = spectrogram(FilteredData(Reclabel==1,4),time_window * Init_freq, time_overlap * Init_freq, Frequencies ,512);
+%%
 for n_electrode = 1:16
     
-  [psdt1(:,:,n_electrode), w, t] = spectrogram(FilteredData(:,n_electrode+1),time_window * Init_freq, time_overlap * Init_freq, Frequencies ,512);
+  [ddd, w, t,psdt1(:,:,n_electrode)] = spectrogram(FilteredData(Reclabel==1,n_electrode+1),time_window * Init_freq, time_overlap * Init_freq, Frequencies ,512);
 
   psdt(:,:,n_electrode)=transpose(psdt1(:,:,n_electrode));
 end
@@ -284,12 +281,14 @@ labelAction(Window_event771)=771;
 % topoplot(squeeze(squeeze(mean( mean(data(Ck==771, MuFreqIds, :), 1), 2 ) )))
 % topoplot(squeeze(squeeze(mean( mean(data(Ck==773, MuFreqIds, :), 1), 2 ) )))
 % Note that this is just possible visualization.
-PSD_both_feet = abs(mean(psdt(labelAction==771, :, :)));
-PSD_both_hand = abs(mean(psdt(labelAction==773, :, :)));
+mu_band=[3:6];
 
- topoplot(PSD_both_hand(1, :, :),Map.chanlocs16);
+PSD_both_feet = mean(mean(psdt(labelAction==771, Frequencies(mu_band), :),1),2);
+PSD_both_hand = mean(mean(psdt(labelAction==773, Frequencies(mu_band), :),1),2);
+
+ topoplot(PSD_both_hand,Map.chanlocs16);
  figure;
- topoplot(PSD_both_feet(1, :, :),Map.chanlocs16);
+ topoplot(PSD_both_feet,Map.chanlocs16);
  
  
 
