@@ -57,9 +57,7 @@ end
 %% Data extraction:
 %1) For each gdf file, import data and events
 %Dimension of the data: [NSamples x NChannels]
-addpath(genpath('projects_common_material/eeglab_current'))
-Map=load('projects_common_material/channel_location_16_10-20_mi.mat')
-%%
+
 addpath(genpath('projects_common_material/biosig'));
 filename1 = 'project2-data-example/anonymous.20170613.161402.offline.mi.mi_bhbf.gdf';
 filename2 = 'project2-data-example/anonymous.20170613.162331.offline.mi.mi_bhbf.gdf';
@@ -268,7 +266,7 @@ end
 
 labelAction=zeros(size(psdt,1),1);
 labelAction(Window_event773)=773;
-labelAction(Window_event771)=771;
+labelAction(Window_event773)=771;
 
 %%
 % 7) Extract the period of interest from the data
@@ -284,20 +282,10 @@ labelAction(Window_event771)=771;
 % topoplot(squeeze(squeeze(mean( mean(data(Ck==771, MuFreqIds, :), 1), 2 ) )))
 % topoplot(squeeze(squeeze(mean( mean(data(Ck==773, MuFreqIds, :), 1), 2 ) )))
 % Note that this is just possible visualization.
-PSD_both_feet = abs(mean(psdt(labelAction==771, :, :)));
-PSD_both_hand = abs(mean(psdt(labelAction==773, :, :)));
-
- topoplot(PSD_both_hand(1, :, :),Map.chanlocs16);
- figure;
- topoplot(PSD_both_feet(1, :, :),Map.chanlocs16);
- 
- 
 
 
- 
-% topoplot(squeeze(squeeze(mean( mean(data(Ck==773, MuFreqIds, :), 1), 2 ) )))
 
-%%
+
 
 NumTrials = length(StartPositions); 
 NumFrequencies = size(psdt,2);
