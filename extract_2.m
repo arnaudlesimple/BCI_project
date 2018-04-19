@@ -205,37 +205,11 @@ end
 % number_of_samples_of_the_whole_signal * frequ_window/frequ_init - (frequ_window-1)
 
 %% Epoching
-% 4) Save the processed data for each file
-% The processing is done, so it is better to save it (so you don't need to recompute every time the PSD).
-% 5) Import and concatenate each processed file
-% You can import the processed data of each file and than concatenate it. As you can see, the structure of the resulting data 
-% is not dependent by the number of files you used. 
-% Remember also to properly concatenate the position of the events.
-% Dimension of the data: [NTotalWindows x NFrequencies x NChannels]
 
-% 6) Create the vectors of labels
-% Now, it's time to label your data. The idea is that you can create simple vectors that labels the first dimension of your data matrix 
-% (windows). 
-% You can create different kind of these vectors.
-% For sure you will need one that indicates the activity period and the class performed in this period. 
-% The vector labels will have the same length 
-% of the first dimension of your data matrix (e.g., NTotalWindows). You need to use the events position, duration and type 
-% in order to create these
-% vectors. Let's imagine that you create a vector label Ck corresponding to the activity period. 
-% This vector can have 3 different values: 0-> no activity period, 771->activity period for both feet, 773->activity period for 
-% both hands. 
-% If you need to take all the data related to class 771, then you need just to use this vector: PSD_both_feet = data(Ck==771, :, :).
-% 
-
-
-%Fixation = 786
-%Both Hands/Right Cue = 773;
-%Both Feet/Left Cue = 771;
-%Continuous Feedback = 781;
-%Boom Target Hit = 897;
-%Boom Target Miss = 898;
-
-% Extraction of data:
+Fixation = 786;
+ContinuousFeedback = 781;
+BoomTargetHit = 897;
+BoomTargetMiss = 898;
 BothHand = 773; % right cue
 BothFeet=771;
 
@@ -246,9 +220,9 @@ Window_event773=[];
 for i=1:length(StartPositions)
 Debut(i)=find(window_end > StartPositions(i),1,'first'); %donne index donc deja le numero de la window!!
 Fin(i)=find(window_start < EndPositions(i),1,'last');
-Window_event773=[Window_event773 Debut(i):Fin(i)];
+Window_BothHand=[Window_event773 Debut(i):Fin(i)];
 end
-%%
+
 %Feet
 StartPositions = (info1.EVENT.POS(info1.EVENT.TYP == BothFeet));
 EndPositions = StartPositions+(info1.EVENT.DUR(info1.EVENT.TYP == BothFeet));
@@ -257,15 +231,66 @@ Window_event771=[];
 for i=1:length(StartPositions)
 Debut(i)=find(window_end > StartPositions(i),1,'first'); %donne index donc deja le numero de la window!!
 Fin(i)=find(window_start < EndPositions(i),1,'last');
-Window_event771=[Window_event771 Debut(i):Fin(i)];
+Window_BothFeet=[Window_event771 Debut(i):Fin(i)];
+end
+
+%BoomTargetMiss = 898;
+
+StartPositions = (info1.EVENT.POS(info1.EVENT.TYP == BoomTargetMiss));
+EndPositions = StartPositions+(info1.EVENT.DUR(info1.EVENT.TYP == BoomTargetMiss));
+Window_event898=[];
+
+for i=1:length(StartPositions)
+Debut(i)=find(window_end > StartPositions(i),1,'first'); %donne index donc deja le numero de la window!!
+Fin(i)=find(window_start < EndPositions(i),1,'last');
+Window_BoomTargetMiss=[Window_event898 Debut(i):Fin(i)];
+end
+
+
+%BoomTargetHit = 897;
+
+StartPositions = (info1.EVENT.POS(info1.EVENT.TYP == BoomTargetHit));
+EndPositions = StartPositions+(info1.EVENT.DUR(info1.EVENT.TYP == BoomTargetHit));
+Window_event897=[];
+
+for i=1:length(StartPositions)
+Debut(i)=find(window_end > StartPositions(i),1,'first'); %donne index donc deja le numero de la window!!
+Fin(i)=find(window_start < EndPositions(i),1,'last');
+Window_BoomTargetHit=[Window_event897 Debut(i):Fin(i)];
+end
+
+%Fixation = 786
+StartPositions = (info1.EVENT.POS(info1.EVENT.TYP == Fixation));
+EndPositions = StartPositions+(info1.EVENT.DUR(info1.EVENT.TYP == Fixation));
+Window_event786=[];
+
+for i=1:length(StartPositions)
+Debut(i)=find(window_end > StartPositions(i),1,'first'); %donne index donc deja le numero de la window!!
+Fin(i)=find(window_start < EndPositions(i),1,'last');
+Window_Fixation=[Window_event786 Debut(i):Fin(i)];
+end
+
+%ContinuousFeedback = 781;
+StartPositions = (info1.EVENT.POS(info1.EVENT.TYP == ContinuousFeedback));
+EndPositions = StartPositions+(info1.EVENT.DUR(info1.EVENT.TYP == ContinuousFeedback));
+Window_event781=[];
+
+for i=1:length(StartPositions)
+Debut(i)=find(window_end > StartPositions(i),1,'first'); %donne index donc deja le numero de la window!!
+Fin(i)=find(window_start < EndPositions(i),1,'last');
+Window_ContinuousFeedback=[Window_event781 Debut(i):Fin(i)];
 end
 
 
 %% faire label
 
 labelAction=zeros(size(psdt,1),1);
-labelAction(Window_event773)=773;
-labelAction(Window_event771)=771;
+labelAction(Window_BothHand)=773;
+labelAction(Window_BothFeet)=771;
+labelAction(Windows_Fixation) = 786;
+labelAction(Windows_ContinuousFeedback) = 781;
+labelAction(Windows_BoomTargetHit) = 897;
+labelAction(Windows_BoomTargetMiss) = 898;
 
 %%
 % 7) Extract the period of interest from the data
