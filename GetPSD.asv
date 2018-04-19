@@ -218,25 +218,43 @@ Window_BoomTargetHit=[Window_BoomTargetHit Debut(i):Fin(i)];
 end
 
 %Fixation = 786
-StartPositions = (info1.EVENT.POS(info1.EVENT.TYP == Fixation));
-EndPositions = StartPositions+(info1.EVENT.DUR(info1.EVENT.TYP == Fixation));
-Window_Fixation=[];
 
-for i=1:length(StartPositions)
-Debut(i)=find(window_end > StartPositions(i),1,'first'); %donne index donc deja le numero de la window!!
-Fin(i)=find(window_start < EndPositions(i),1,'last');
-Window_Fixation=[Window_Fixation Debut(i):Fin(i)];
-end
+
+
+% for i=1:length(StartPositions)
+% Debut(i)=find(window_end > StartPositions(i),1,'first'); %donne index donc deja le numero de la window!!
+% Fin(i)=find(window_start < EndPositions(i),1,'last');
+% Window_Fixation=[Window_Fixation Debut(i):Fin(i)];
+% 
+% Start_End_Fixation(i,:)=[Debut(i),Fin(i)];
+% end
 
 %ContinuousFeedback = 781;
-StartPositions = (info1.EVENT.POS(info1.EVENT.TYP == ContinuousFeedback));
-EndPositions = StartPositions+(info1.EVENT.DUR(info1.EVENT.TYP == ContinuousFeedback));
+StartPositionsFeedBack = (info1.EVENT.POS(info1.EVENT.TYP == ContinuousFeedback));
+EndPositionsFeedBack = StartPositionsFeedBack+(info1.EVENT.DUR(info1.EVENT.TYP == ContinuousFeedback));
 Window_ContinuousFeedback=[];
 
+Start_End_FeedBack=zeros(length(StartPositionsFeedBack),2);
+
+StartPositionsFix = (info1.EVENT.POS(info1.EVENT.TYP == Fixation));
+EndPositionsFix = StartPositionsFix+(info1.EVENT.DUR(info1.EVENT.TYP == Fixation));
+Window_Fixation=[];
+Start_End_Fixation=zeros(length(StartPositionsFix),2);
+
 for i=1:length(StartPositions)
-Debut(i)=find(window_end > StartPositions(i),1,'first'); %donne index donc deja le numero de la window!!
-Fin(i)=find(window_start < EndPositions(i),1,'last');
-Window_ContinuousFeedback=[Window_ContinuousFeedback Debut(i):Fin(i)];
+    
+DebutFeedBack(i)=find(window_end > StartPositionsFeedBack(i),1,'first'); %donne index donc deja le numero de la window!!
+FinFeedBack(i)=find(window_start < EndPositionsFeedBack(i),1,'last');
+Window_ContinuousFeedback=[Window_ContinuousFeedback DebutFeedBack(i):FinFeedBack(i)];
+
+DebutFixation(i)=find(window_end > StartPositionsFix(i),1,'first'); %donne index donc deja le numero de la window!!
+FinFixation(i)=find(window_start < EndPositionsFix(i),1,'last');
+Window_ContinuousFeedback=[Window_ContinuousFixation DebutFixationi):FinFixation(i)];
+
+type=info1.EVENT.TYP(find(info1.EVENT.POS==(StartPositions(i)))-1);
+
+Start_End_FeedBack(i,:)=[type,DebutFeedBack(i),FinFeedBack(i)];
+
 end
 
 
@@ -256,10 +274,12 @@ save('SPD\Frequences.mat','Frequencies');
  end;
 %%
 
+
+%%
 name= ['SPD\SPD with ',filtre,' Spatial filtre.mat'];
 save(name,'psdt');
 
 save('SPD\Feet Start_End window','Start_End_Feet');
 save('SPD\Hand Start_End window','Start_End_Hand');
-
+save('SPD\Fixation Stard_End window','Start_End_Fixation');
 
