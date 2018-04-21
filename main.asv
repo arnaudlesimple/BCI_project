@@ -1,0 +1,89 @@
+clc
+clear all
+close all
+
+frequencies = load('SPD/Frequences.mat');
+window_label = load('SPD/WindowLabel.mat');
+load('SPD/Event Window.mat')
+
+% Load PSD estimates
+psd_small_laplacian = load('SPD/SPD with SmallLaplacian Spatial filtre.mat');
+psd_large_laplacian = load('SPD/SPD with LargeLaplacian Spatial filtre.mat');
+psd_CAR_filter = load('SPD/SPD with CAR Spatial filtre.mat');
+psd_no_spatial_filter = load('SPD/SPD with NO Spatial filtre');
+psd = {psd_small_laplacian, psd_large_laplacian, psd_CAR_filter, psd_no_spatial_filter};
+
+mu_band = [3:6];
+beta_band = [7:18];
+band = {mu_band, beta_band};
+
+window_frequency = 16;
+
+%% Feature plots:
+
+for psd_num = 1:length(psd)
+    for band_num = 1:length(band)
+        GetFeaturePlot(psd{psd_num}, band{band_num}, frequencies, window_label, psd_num, band_num);
+    end
+end
+
+%%
+psd = psd_small_laplacian;
+band = mu_band; 
+load('SPD/Feet_Cue_window.mat')
+load('SPD/Hand_Cue_window.mat')
+
+%%
+% Extract sample position for both feet and both hands separately
+Start_End_Feet = Event_window(find(Event_window(:,1) == 771),:);
+Start_End_Hand = Event_window(find(Event_window(:,1) == 773),:);
+
+% extract continuous feedback event minimum length
+trial_length_feet = min(Start_End_Feet(:,5)-Start_End_Feet(:,4));
+trial_length_hand = min(Start_End_Hand(:,5)-Start_End_Hand(:,4));
+% extract baseline event (fixation) minimum length
+baseline_length_feet = min(Start_End_Feet(:,3)-Start_End_Feet(:,2));
+baseline_length_hand = min(Start_End_Hand(:,3)-Start_End_Hand(:,2));
+
+number_electrode = 16;
+num_trial = length(Start_End_Feet);
+Epoch_both_feet = zeros(trial_length_feet,length(band),num_trial);
+Epoch_both_hand = zeros(trial_length_hand,length(band),num_trial);
+
+for n_electrode = 1:number_electrode
+    for trial_number = 1:num_trial
+        % --> Both feet:
+        
+        % Continuous feedback
+        trial_samples = [Start_End_Feet(trial_number,4):Start_End_Feet(trial_number,4) + trial_length_feet-1];
+        Epoch_both_feet(:,:,trial_number, n_electrode) = psd.psdt(trial_samples, band, n_electrode);
+        % Baseline:
+        baseline_samples = [Start_End_Feet(trial_number,2):Start_End_Feet(trial_number,2) + baseline_length_feet-1];
+        Baseline_both_feet(:,:,trial_number, n_electrode) = psd.psdt(baseline_samples, band, n_electrode);
+        
+        
+        % --> Both hands:
+        
+        % Continuous feedback
+        trial_samples = [Start_End_Hand(trial_number,4):Start_End_Hand(trial_number,4) + trial_length_feet-1];
+        Epoch_both_hand(:,:,trial_number, n_electrode) = psd.psdt(trial_samples, band, n_electrode); 
+        % Baseline
+        baseline_samples = [Start_End_Feet(trial_number,2):Start_End_Feet(trial_number,2) + baseline_length_hand-1];
+        Baseline_both_hand(:,:,trial_number, n_electrode) = psd.psdt(baseline_samples, band, n_electrode);
+    end
+end
+
+%%
+
+% electrode 1:
+PSD_both_feet = mean(Epoch_both_feet(:,:,:,1),3)
+BaseLine = mean(mean(Baseline_both_feet(:,:,:,1),3))
+ERD_ERS = (10.*log10(PSD_both_feet) - 10.*log10(BaseLine)) / (10.*log10(BaseLine));
+imagesc([0:trial_length_feet/window_frequency],frequencies.Frequencies(band), transpose(ERD_ERS))
+c = colorbar;
+xlabel('time [s]')
+ylabel('frequency [Hz]')
+set(gca, 'XTick', [0:trial_length_feet/window_frequency])
+set(gca, 'YTick', frequencies.Frequencies(band))
+title([psd_type{psd_num} ' PSD visualization in the ' band_type{band_num} ' for all channels'])
+%PSD_both_hand = mean(Epoch_both_hand(:,:,:,1),3)
