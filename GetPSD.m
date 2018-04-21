@@ -9,7 +9,7 @@ mu_band =0;
 CAR=0;
 SmallLaplacian=0;
 LargeLaplacian=0;
-DoLabel=0;
+DoLabel=1;
 
 if CAR+SmallLaplacian+LargeLaplacian >1 | beta_band+mu_band >1
     A='Error'
@@ -120,7 +120,7 @@ time_overlap = 1 - window_change; % in seconds
 frequ_psdt=1/window_change; %frequ overlap
 
 % 62.5 ms = 16 samples
-Frequencies=[4:2:48];
+Frequencies=4:2:48;
 
 %look for each recording?
 
@@ -155,7 +155,7 @@ end
 
 %% Epoching
 
- if DoLabel==1;
+ if DoLabel==1
      
 Fixation = 786;
 ContinuousFeedback = 781;
@@ -168,10 +168,14 @@ StartPositions = (info1.EVENT.POS(info1.EVENT.TYP == BothHand));
 EndPositions = StartPositions+(info1.EVENT.DUR(info1.EVENT.TYP == BothHand));
 Window_BothHand=[];
 
+Start_End_Hand=zeros(length(StartPositions),2);
+
 for i=1:length(StartPositions)
 Debut(i)=find(window_end > StartPositions(i),1,'first'); %donne index donc deja le numero de la window!!
 Fin(i)=find(window_start < EndPositions(i),1,'last');
 Window_BothHand=[Window_BothHand Debut(i):Fin(i)];
+
+Start_End_Hand(i,:)=[Debut(i),Fin(i)];
 end
 
 %Feet
@@ -179,10 +183,13 @@ StartPositions = (info1.EVENT.POS(info1.EVENT.TYP == BothFeet));
 EndPositions = StartPositions+(info1.EVENT.DUR(info1.EVENT.TYP == BothFeet));
 Window_BothFeet=[];
 
+Start_End_Feet=zeros(length(StartPositions),2);
+
 for i=1:length(StartPositions)
 Debut(i)=find(window_end > StartPositions(i),1,'first'); %donne index donc deja le numero de la window!!
 Fin(i)=find(window_start < EndPositions(i),1,'last');
 Window_BothFeet=[Window_BothFeet Debut(i):Fin(i)];
+Start_End_Feet(i,:)=[Debut(i),Fin(i)];
 end
 
 %BoomTargetMiss = 898;
@@ -249,8 +256,10 @@ save('SPD\Frequences.mat','Frequencies');
  end;
 %%
 
-
-
 name= ['SPD\SPD with ',filtre,' Spatial filtre.mat'];
 save(name,'psdt');
+
+save('SPD\Feet Start_End window','Start_End_Feet');
+save('SPD\Hand Start_End window','Start_End_Hand');
+
 
