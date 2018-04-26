@@ -157,86 +157,98 @@ end
 
  if DoLabel==1
      
-Fixation = 786;
-ContinuousFeedback = 781;
+
 BoomTargetHit = 897;
 BoomTargetMiss = 898;
 BothHand = 773; % right cue
 BothFeet=771;
+Fixation = 786;
+ContinuousFeedback = 781;
 
-StartPositions = (info1.EVENT.POS(info1.EVENT.TYP == BothHand));
-EndPositions = StartPositions+(info1.EVENT.DUR(info1.EVENT.TYP == BothHand));
+
+StartPositionsHand = (info1.EVENT.POS(info1.EVENT.TYP == BothHand));
+EndPositionsHand = StartPositionsHand+(info1.EVENT.DUR(info1.EVENT.TYP == BothHand));
 Window_BothHand=[];
 
-Start_End_Hand=zeros(length(StartPositions),2);
+Hand_Cue_window=zeros(length(StartPositionsHand),2);
 
-for i=1:length(StartPositions)
-Debut(i)=find(window_end > StartPositions(i),1,'first'); %donne index donc deja le numero de la window!!
-Fin(i)=find(window_start < EndPositions(i),1,'last');
-Window_BothHand=[Window_BothHand Debut(i):Fin(i)];
+for i=1:length(StartPositionsHand)
+DebutHand(i)=find(window_end > StartPositionsHand(i),1,'first'); %donne index donc deja le numero de la window!!
+FinHand(i)=find(window_start < EndPositionsHand(i),1,'last');
+Window_BothHand=[Window_BothHand DebutHand(i):FinHand(i)];
 
-Start_End_Hand(i,:)=[Debut(i),Fin(i)];
+Hand_Cue_window(i,:)=[DebutHand(i),FinHand(i)];
 end
 
 %Feet
-StartPositions = (info1.EVENT.POS(info1.EVENT.TYP == BothFeet));
-EndPositions = StartPositions+(info1.EVENT.DUR(info1.EVENT.TYP == BothFeet));
+StartPositionsFeet = (info1.EVENT.POS(info1.EVENT.TYP == BothFeet));
+EndPositionsFeet = StartPositionsFeet+(info1.EVENT.DUR(info1.EVENT.TYP == BothFeet));
 Window_BothFeet=[];
 
-Start_End_Feet=zeros(length(StartPositions),2);
+Feet_Cue_window=zeros(length(StartPositionsFeet),2);
 
-for i=1:length(StartPositions)
-Debut(i)=find(window_end > StartPositions(i),1,'first'); %donne index donc deja le numero de la window!!
-Fin(i)=find(window_start < EndPositions(i),1,'last');
-Window_BothFeet=[Window_BothFeet Debut(i):Fin(i)];
-Start_End_Feet(i,:)=[Debut(i),Fin(i)];
+for i=1:length(StartPositionsFeet)
+DebutFeet(i)=find(window_end > StartPositionsFeet(i),1,'first'); %donne index donc deja le numero de la window!!
+FinFeet(i)=find(window_start < EndPositionsFeet(i),1,'last');
+Window_BothFeet=[Window_BothFeet DebutFeet(i):FinFeet(i)];
+Feet_Cue_window(i,:)=[DebutFeet(i),FinFeet(i)];
 end
 
 %BoomTargetMiss = 898;
 
-StartPositions = (info1.EVENT.POS(info1.EVENT.TYP == BoomTargetMiss));
-EndPositions = StartPositions+(info1.EVENT.DUR(info1.EVENT.TYP == BoomTargetMiss));
+StartPositionsTargetMiss = (info1.EVENT.POS(info1.EVENT.TYP == BoomTargetMiss));
+EndPositionsTargetMiss = StartPositionsTargetMiss+(info1.EVENT.DUR(info1.EVENT.TYP == BoomTargetMiss));
 Window_BoomTargetMiss=[];
 
-for i=1:length(StartPositions)
-Debut(i)=find(window_end > StartPositions(i),1,'first'); %donne index donc deja le numero de la window!!
-Fin(i)=find(window_start < EndPositions(i),1,'last');
-Window_BoomTargetMiss=[Window_BoomTargetMiss Debut(i):Fin(i)];
+for i=1:length(StartPositionsTargetMiss)
+DebutTargetMiss(i)=find(window_end > StartPositionsTargetMiss(i),1,'first'); %donne index donc deja le numero de la window!!
+FinTargetMiss(i)=find(window_start < EndPositionsTargetMiss(i),1,'last');
+Window_BoomTargetMiss=[Window_BoomTargetMiss DebutTargetMiss(i):FinTargetMiss(i)];
 end
 
 
 %BoomTargetHit = 897;
 
-StartPositions = (info1.EVENT.POS(info1.EVENT.TYP == BoomTargetHit));
-EndPositions = StartPositions+(info1.EVENT.DUR(info1.EVENT.TYP == BoomTargetHit));
+StartPositionsTargetHit = (info1.EVENT.POS(info1.EVENT.TYP == BoomTargetHit));
+EndPositionsTargetHit = StartPositionsTargetHit+(info1.EVENT.DUR(info1.EVENT.TYP == BoomTargetHit));
 Window_BoomTargetHit=[];
 
-for i=1:length(StartPositions)
-Debut(i)=find(window_end > StartPositions(i),1,'first'); %donne index donc deja le numero de la window!!
-Fin(i)=find(window_start < EndPositions(i),1,'last');
-Window_BoomTargetHit=[Window_BoomTargetHit Debut(i):Fin(i)];
+for i=1:length(StartPositionsTargetHit)
+DebutTargetHit(i)=find(window_end > StartPositionsTargetHit(i),1,'first'); %donne index donc deja le numero de la window!!
+FinTargetHit(i)=find(window_start < EndPositionsTargetHit(i),1,'last');
+Window_BoomTargetHit=[Window_BoomTargetHit DebutTargetHit(i):FinTargetHit(i)];
 end
+
+
+%%
+%ContinuousFeedback = 781;
+StartPositionsFeedBack = (info1.EVENT.POS(info1.EVENT.TYP == ContinuousFeedback));
+EndPositionsFeedBack = StartPositionsFeedBack+(info1.EVENT.DUR(info1.EVENT.TYP == ContinuousFeedback));
+Window_ContinuousFeedback=[];
+Start_End_FeedBack=zeros(length(StartPositionsFeedBack),2);
 
 %Fixation = 786
-StartPositions = (info1.EVENT.POS(info1.EVENT.TYP == Fixation));
-EndPositions = StartPositions+(info1.EVENT.DUR(info1.EVENT.TYP == Fixation));
+StartPositionsFix = (info1.EVENT.POS(info1.EVENT.TYP == Fixation));
+EndPositionsFix = StartPositionsFix+(info1.EVENT.DUR(info1.EVENT.TYP == Fixation));
 Window_Fixation=[];
+Start_End_Fixation=zeros(length(StartPositionsFix),2);
 
-for i=1:length(StartPositions)
-Debut(i)=find(window_end > StartPositions(i),1,'first'); %donne index donc deja le numero de la window!!
-Fin(i)=find(window_start < EndPositions(i),1,'last');
-Window_Fixation=[Window_Fixation Debut(i):Fin(i)];
-end
+Event_window=zeros(length(StartPositionsFix),5);
 
-%ContinuousFeedback = 781;
-StartPositions = (info1.EVENT.POS(info1.EVENT.TYP == ContinuousFeedback));
-EndPositions = StartPositions+(info1.EVENT.DUR(info1.EVENT.TYP == ContinuousFeedback));
-Window_ContinuousFeedback=[];
+for i=1:length(StartPositionsFeedBack)
+    
+DebutFeedBack(i)=find(window_end > StartPositionsFeedBack(i),1,'first'); %donne index donc deja le numero de la window!!
+FinFeedBack(i)=find(window_start < EndPositionsFeedBack(i),1,'last');
+Window_ContinuousFeedback=[Window_ContinuousFeedback DebutFeedBack(i):FinFeedBack(i)];
 
-for i=1:length(StartPositions)
-Debut(i)=find(window_end > StartPositions(i),1,'first'); %donne index donc deja le numero de la window!!
-Fin(i)=find(window_start < EndPositions(i),1,'last');
-Window_ContinuousFeedback=[Window_ContinuousFeedback Debut(i):Fin(i)];
+DebutFixation(i)=find(window_end > StartPositionsFix(i),1,'first'); %donne index donc deja le numero de la window!!
+FinFixation(i)=find(window_start < EndPositionsFix(i),1,'last');
+Window_Fixation=[Window_Fixation DebutFixation(i):FinFixation(i)];
+
+type=info1.EVENT.TYP(find(info1.EVENT.POS==(StartPositionsFeedBack(i)))-1);
+
+Event_window(i,:)=[type,DebutFixation(i) FinFixation(i) DebutFeedBack(i),FinFeedBack(i)];
+
 end
 
 
@@ -254,12 +266,12 @@ save('SPD\WindowLabel.mat','labelAction');
 save('SPD\Frequences.mat','Frequencies');
 
  end;
-%%
 
+%%
 name= ['SPD\SPD with ',filtre,' Spatial filtre.mat'];
 save(name,'psdt');
 
-save('SPD\Feet Start_End window','Start_End_Feet');
-save('SPD\Hand Start_End window','Start_End_Hand');
-
+save('SPD\Feet_Cue_window','Feet_Cue_window');
+save('SPD\Hand_Cue_window','Hand_Cue_window');
+save('SPD\Event Window','Event_window');
 
