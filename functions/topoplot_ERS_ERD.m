@@ -17,13 +17,13 @@ Name={'CAR','Small Laplacian','Large Laplacian'};
 
 Action = load('SPD/Event Window.mat');
 Action = Action.Event_window;
-Event=load('SPD/WindowLabel.mat');
+Event=load('SPD/WindowLabel.mat');%WindowLabel
 Event=Event.labelAction;
 
 Frequencies=[3:6]; %[3:6](8-14Hz) =mu band, beta= [7:15] (16-32 Hz)
 
-AllAction=1;
-SeparateAction=0;
+AllAction=0;
+SeparateAction=1;
 
 for a=1:3
 
@@ -40,17 +40,14 @@ if AllAction==1
     mu_hand_ERD=mean((Hand_Energy(Frequencies,:)-BaseLine(Frequencies,:))./BaseLine(Frequencies,:),1);
     mu_foot_ERD=mean((Feet_Energy(Frequencies,:)-BaseLine(Frequencies,:))./BaseLine(Frequencies,:),1);
     
-    subplot(3,2,2*a-1)
-    topoplot(mu_foot_ERD,Map.chanlocs16);
-    title(['Feet AVERAGE topoplot  of Mu waves with ' Name(a) 'filter' ]);
-    c=colorbar;
-    c.Label.String = 'ERD/ERS';
-    
-    subplot(3,2,2*a)
-    topoplot(mu_hand_ERD,Map.chanlocs16);
-    title(['Hand AVERAGE topoplot of Mu waves with ' Name(a) 'filter' ]);
-    c= colorbar;
-    c.Label.String = 'ERD/ERS';
+    B=topoplot(mu_hand_ERD,Map.chanlocs16);
+    colorbar;
+    title('Hand topoplot');
+
+    figure;
+    B=topoplot(mu_foot_ERD,Map.chanlocs16);
+    colorbar;
+    title('Feet topoplot');
 
 end
 
@@ -87,16 +84,11 @@ if SeparateAction==1
     
     subplot(3,2,2*a-1)
     topoplot(mean(FeetERD),Map.chanlocs16);
-    title(['Feet topoplot  of Beta waves with ' Name(a) 'filter' ]);
-    c=colorbar;
-    c.Label.String = 'ERD/ERS';
-    
+    title(['Feet topoplot with ' Name(a) 'filter' ]);
     subplot(3,2,2*a)
     topoplot(mean(HandERD),Map.chanlocs16);
-    title(['Hand topoplot of Beta waves with ' Name(a) 'filter' ]);
-    c= colorbar;
-    c.Label.String = 'ERD/ERS';
-    
+    title(['Hand topoplot with ' Name(a) 'filter' ]);
+
 end
 
 end
