@@ -8,11 +8,11 @@ create_psd = false;
 % Choose the type of figure to plot: 
 %   1 -> plot
 %   0 -> no plot
-topoplot = 1;
+topoplot = 0;
 PSD_time_plot = 0;
 PSD_time_plot_Elise = 0;
 Frequency_time_plot = 0;
-Discrimancy_map = 0;
+Discrimancy_map = 1;
 
 
 
