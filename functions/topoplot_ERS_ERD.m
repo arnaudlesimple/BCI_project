@@ -17,11 +17,11 @@ Name={'CAR','Small Laplacian','Large Laplacian'};
 
 Action = load('SPD/Event Window.mat');
 Action = Action.Event_window;
-Event=load('SPD/WindowLabel.mat');
+Event=load('SPD/WindowLabel.mat');%WindowLabel
 Event=Event.labelAction;
 
-band={'Mu'};
-Frequencies=[3:6]; %[3:6](8-14Hz) =mu band, beta= [7:15] (16-32 Hz)
+band={'Beta'};
+Frequencies=[7:15]; %[3:6](8-14Hz) =mu band, beta= [7:15] (16-32 Hz)
 
 AllAction=0;
 SeparateAction=1;
@@ -29,9 +29,7 @@ SeparateAction=1;
 for a=1:3
 
 PSD=AllPSD(:,(a-1)*23+1:a*23,:);
-PSD_dB=10.*log10(PSD);
-
-%PSD_dB=PSD;
+PSD_dB=10.*log10(PSD+1); %+1 in order to be positive
 
 if AllAction==1
     
@@ -43,18 +41,7 @@ if AllAction==1
     mu_hand_ERD=mean((Hand_Energy(Frequencies,:)-BaseLine(Frequencies,:))./BaseLine(Frequencies,:),1);
     mu_foot_ERD=mean((Feet_Energy(Frequencies,:)-BaseLine(Frequencies,:))./BaseLine(Frequencies,:),1);
     
-    subplot(3,2,2*a-1)
-    topoplot(mu_foot_ERD,Map.chanlocs16);
-    title(['Feet AVERAGE topoplot  of ' band ' waves with ' Name(a) 'filter' ]);
-    c=colorbar;
-    c.Label.String = 'ERD/ERS';
-    
-    subplot(3,2,2*a)
-    topoplot(mu_hand_ERD,Map.chanlocs16);
-    title(['Hand AVERAGE topoplot of ' band ' waves with ' Name(a) 'filter' ]);
-    c= colorbar;
-    c.Label.String = 'ERD/ERS';
-    
+
 
 end
 
@@ -73,14 +60,10 @@ if SeparateAction==1
          
          BandHandEpoch=mean(HandEpoch(Frequencies,:),1);
          BandBaseLineHand=mean(BaseLineHand(Frequencies,:),1);
-         
-         %HandERD(i,:)=100*(10.*log10(BandHandEpoch)-10.*log10(BandBaseLineHand))./BandBaseLineHand;
-         
-          HandERD(i,:)=100*(BandHandEpoch-BandBaseLineHand)./BandBaseLineHand;
+                  
+         HandERD(i,:)=100*(BandHandEpoch-BandBaseLineHand)./BandBaseLineHand;
 
           
-          HandERD(i,:)=100*(10.*log10(BandHandEpoch-BandBaseLineHand)./BandBaseLineHand;
-
     end
 %%
     for i=1:length(FeetMove)
@@ -89,39 +72,16 @@ if SeparateAction==1
          
          BandFeetEpoch=mean(FeetEpoch(Frequencies,:),1);
          BandBaseLineFeet=mean(BaseLineFeet(Frequencies,:),1);
-         
-        % FeetERD(i,:)=100*(10.*log10(BandFeetEpoch)-10.*log10(BandBaseLineFeet))./BandBaseLineFeet;
-         
+                  
          FeetERD(i,:)=100*(BandFeetEpoch-BandBaseLineFeet)./BandBaseLineFeet;
          
-
-
     end
     
 
     
     subplot(3,3,1+(a-1)*3)
     topoplot(mean(FeetERD),Map.chanlocs16);
-    title(['Feet topoplot  of ' band ' waves with ' Name(a) 'filter' ],'FontSize',6);
-    c=colorbar;
-    c.Label.String = 'ERD/ERS';
-    
-    subplot(3,3,2+(a-1)*3)
-    topoplot(mean(HandERD),Map.chanlocs16);
-    title(['Hand topoplot of' band ' waves with ' Name(a) 'filter' ],'FontSize',6);
-    c= colorbar;
-    c.Label.String = 'ERD/ERS';
-    
-     subplot(3,3,3+(a-1)*3)
-    topoplot(mean(HandERD)-mean(FeetERD),Map.chanlocs16);
-    
-    title(['Hand-feet topoplot of ' band ' waves with ' Name(a) 'filter' ],'FontSize',6);
-    c= colorbar;
-    c.Label.String = 'ERD/ERS';
-    
-   
-   
-    
+
 end
 
 end
