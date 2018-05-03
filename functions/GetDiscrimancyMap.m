@@ -28,7 +28,7 @@ function discrimancy = GetDiscrimancyMap(psd, band, window_frequency, frequencie
 %         ylabel('PSD')
     end
 
-    imagesc([0:number_electrode],frequencies.Frequencies(band), discrimancy)
+    imagesc([0:number_electrode],frequencies.Frequencies(band), discrimancy);
     colorbar
     xlabel('channel')
     ylabel('frequency')

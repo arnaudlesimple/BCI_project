@@ -42,7 +42,7 @@ end_feedback=Action(:,5);
 
 trial_label=Action(:,1);
 
-selected_features= [24 9; 12 2; 12 3; 12 5;12 8;24 9;34 11]; %[frequ x channel]
+selected_features= [24 9; 12 2; 12 3; 12 5; 12 7;12 8;12 11]; %[frequ x channel]
 
 selected_features=[selected_features(:,1)./2-1,selected_features(:,2)]; %[frequ_INDEX x channel
 
@@ -60,7 +60,11 @@ for i=1:length(start_feedback)
     end
     
     window_feat=[window_feat;Window_single_feat];
-    window_label=[window_label; ones(end_feedback(i)-start_feedback(i)+1,1)*Action(i,1)];
+    
+   temp=ones(end_feedback(i)-start_feedback(i)+1,2).*[Action(i,1),i]
+
+    
+    window_label=[window_label; temp];
  end
 
 %%
@@ -68,6 +72,7 @@ for i=1:length(start_feedback)
 partition_N = cvpartition(length(window_feat), 'KFold', 10);
 
 
+erreur=zeros(10,1);
 
 for i=1:10
 %on recherche les index des training/test sample
@@ -80,15 +85,21 @@ features_testing=window_feat(testing_set_index,:);
 classifier = fitcdiscr(features_training, window_label(training_set_index), 'discrimtype', 'linear'); %train an LDA classifier
 test_label = predict(classifier, features_testing); 
 
-erreur =  error( window_label(testing_set_index), test_label);
+single_sample_accuracy(i) =  accuracy( window_label(testing_set_index), test_window_label);
+
+
 
 
 end
 
+avg_s_s_accuracy=mean(single_sample_accuracy);
 
-function [class_error]=error(real_label, predicted_label)
+
+
+
+
+function [class_accuracy]=accuracy(real_label, predicted_label)
     false=nnz(real_label-predicted_label);
     
-    class_error=false/length(real_label);
+    class_accuracy=1-(false/length(real_label));
 end
-    

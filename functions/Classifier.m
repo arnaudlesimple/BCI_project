@@ -60,12 +60,16 @@ for i=1:length(start_feedback)
     end
     
     window_feat=[window_feat;Window_single_feat];
-    window_label=[window_label; ones(end_feedback(i)-start_feedback(i)+1,1)*Action(i,1)];
+    
+   temp=ones(end_feedback(i)-start_feedback(i)+1,2).*[Action(i,1),i]
+
+    
+    window_label=[window_label; temp];
  end
 
 %%
 
-partition_N = cvpartition(length(window_feat), 'KFold', 10);
+partition_N = cvpartition(length(start_feedback), 'KFold', 10);
 
 
 erreur=zeros(10,1);
@@ -75,22 +79,27 @@ for i=1:10
 training_set_index = find(partition_N.training(i));
 testing_set_index = find(partition_N.test(i));
 
-features_training=window_feat(training_set_index,:);
+features_training=window_feat(window_label(:,2)==;
 features_testing=window_feat(testing_set_index,:);
 
 classifier = fitcdiscr(features_training, window_label(training_set_index), 'discrimtype', 'linear'); %train an LDA classifier
 test_label = predict(classifier, features_testing); 
 
-erreur(i) =  error( window_label(testing_set_index), test_label);
+single_sample_accuracy(i) =  accuracy( window_label(testing_set_index), test_window_label);
+
+
 
 
 end
 
-avg=mean(erreur);
+avg_s_s_accuracy=mean(single_sample_accuracy);
 
-function [class_error]=error(real_label, predicted_label)
+
+
+
+
+function [class_accuracy]=accuracy(real_label, predicted_label)
     false=nnz(real_label-predicted_label);
     
-    class_error=false/length(real_label);
+    class_accuracy=1-(false/length(real_label));
 end
-    
