@@ -23,8 +23,8 @@ if create_psd
     beta_band=0; %1=on,0=off
     mu_band =1;
     CAR=1;
-    SmallLaplacian=0;
-    LargeLaplacian=0;
+    SmallLaplacian=1;
+    LargeLaplacian=1;
     DoLabel=0;
 
     GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel)
@@ -54,19 +54,22 @@ band = {mu_band, beta_band};
 % Define psd window frequency
 window_frequency = 16;
 
-
 % Choose the type of psd and frequency band 
-all_plots = false;
+
 psd_selected = psd_large_laplacian;
 band_selected = mu_beta_band;
 
+
+%topoplot
+all_action = false;
+all_plots = false;
 %% Get Epoching
 [Epoch_both_feet, Epoch_both_hands, Baseline_both_feet, Baseline_both_hands, trial_length_feet, trial_length_hand] = Epoching(psd_selected.psdt, band_selected);
 
 %% Get topoplots
 
 if topoplot
-    all_action = true;
+    
     GetTopoplot(psd_selected, band_selected, window_frequency, frequencies, Event_window, window_label, all_plots, all_action)
 end
 

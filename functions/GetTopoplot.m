@@ -58,6 +58,7 @@ function GetTopoplot(psd, freq, window_frequency, frequencies, Event_window, win
                 BandBaseLineHand=mean(BaseLineHand(freq,:),1);
 
                 HandERD(i,:)=100*(BandHandEpoch-BandBaseLineHand)./BandBaseLineHand;
+                
             end
             %%
             for i=1:length(FeetMove)
@@ -72,10 +73,10 @@ function GetTopoplot(psd, freq, window_frequency, frequencies, Event_window, win
 
 
 
-            subplot(3,2,2*a-1)
+            subplot(1,2,1)
             topoplot(mean(FeetERD),Map.chanlocs16);
             title(['Feet topoplot with ' Name(a) 'filter' ]);
-            subplot(3,2,2*a)
+            subplot(1,2,2)
             topoplot(mean(HandERD),Map.chanlocs16);
             title(['Hand topoplot with ' Name(a) 'filter' ]);
 

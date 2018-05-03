@@ -20,8 +20,8 @@ Action = Action.Event_window;
 Event=load('SPD/WindowLabel.mat');%WindowLabel
 Event=Event.labelAction;
 
-band={'mu'};
-Frequencies=[3:6]; %[3:6](8-14Hz) =mu band, beta= [7:15] (16-32 Hz)
+band={'Beta'};
+Frequencies=[7:15]; %[3:6](8-14Hz) =mu band, beta= [7:15] (16-32 Hz)
 
 AllAction=0;
 SeparateAction=1;
@@ -41,7 +41,27 @@ if AllAction==1
     mu_hand_ERD=mean((Hand_Energy(Frequencies,:)-BaseLine(Frequencies,:))./BaseLine(Frequencies,:),1);
     mu_foot_ERD=mean((Feet_Energy(Frequencies,:)-BaseLine(Frequencies,:))./BaseLine(Frequencies,:),1);
     
+    subplot(3,2,2*a-1)
+    topoplot(mu_foot_ERD,Map.chanlocs16);
+    title(['Feet AVERAGE topoplot  of ' band ' waves with ' Name(a) 'filter' ]);
+    c=colorbar;
+    c.Label.String = 'ERD/ERS';
+    
+    subplot(3,2,2*a)
+    topoplot(mu_hand_ERD,Map.chanlocs16);
+    title(['Hand AVERAGE topoplot of ' band ' waves with ' Name(a) 'filter' ]);
+    c= colorbar;
+    c.Label.String = 'ERD/ERS';
+    
 
+    B=topoplot(mu_hand_ERD,Map.chanlocs16);
+    colorbar;
+    title('Hand topoplot');
+
+    figure;
+    B=topoplot(mu_foot_ERD,Map.chanlocs16);
+    colorbar;
+    title('Feet topoplot');
 
 end
 
@@ -81,6 +101,32 @@ if SeparateAction==1
     
     subplot(3,3,1+(a-1)*3)
     topoplot(mean(FeetERD),Map.chanlocs16);
+    
+    title(['Feet topoplot  of ' band ' waves with ' Name(a) 'filter' ],'FontSize',6);
+    c=colorbar;
+    c.Label.String = 'ERD/ERS';
+    
+    subplot(3,3,2+(a-1)*3)
+    topoplot(mean(HandERD),Map.chanlocs16);
+    title(['Hand topoplot of' band ' waves with ' Name(a) 'filter' ],'FontSize',6);
+    c= colorbar;
+    c.Label.String = 'ERD/ERS';
+    
+     subplot(3,3,3+(a-1)*3)
+    topoplot(mean(HandERD)-mean(FeetERD),Map.chanlocs16);
+    
+    title(['Hand-feet topoplot of ' band ' waves with ' Name(a) 'filter' ],'FontSize',6);
+    c= colorbar;
+    c.Label.String = 'ERD/ERS';
+    
+   
+   
+    
+
+    title(['Feet topoplot with ' Name(a) 'filter' ]);
+    subplot(3,2,2*a)
+    topoplot(mean(HandERD),Map.chanlocs16);
+    title(['Hand topoplot with ' Name(a) 'filter' ]);
 
 end
 
