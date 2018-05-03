@@ -21,7 +21,7 @@ function GetTopoplot(psd, freq, window_frequency, frequencies, Event_window, win
         else
             PSD = psd.psdt;
         end
-        PSD_dB=10.*log10(PSD);
+        PSD_dB=10.*log10(PSD+1);
 
         if all_action
 
@@ -57,7 +57,7 @@ function GetTopoplot(psd, freq, window_frequency, frequencies, Event_window, win
                 BandHandEpoch=mean(HandEpoch(freq,:),1);
                 BandBaseLineHand=mean(BaseLineHand(freq,:),1);
 
-                HandERD(i,:)=(BandHandEpoch-BandBaseLineHand)./BandBaseLineHand;
+                HandERD(i,:)=100*(BandHandEpoch-BandBaseLineHand)./BandBaseLineHand;
             end
             %%
             for i=1:length(FeetMove)
@@ -67,7 +67,7 @@ function GetTopoplot(psd, freq, window_frequency, frequencies, Event_window, win
                 BandFeetEpoch=mean(FeetEpoch(freq,:),1);
                 BandBaseLineFeet=mean(BaseLineFeet(freq,:),1);
 
-                FeetERD(i,:)=(BandFeetEpoch-BandBaseLineFeet)./BandBaseLineFeet;
+                FeetERD(i,:)=100*(BandFeetEpoch-BandBaseLineFeet)./BandBaseLineFeet;
             end
 
 
