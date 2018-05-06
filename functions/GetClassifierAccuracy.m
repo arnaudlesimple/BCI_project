@@ -1,38 +1,5 @@
-clear
-close all
+function [avg_s_s_accuracy,STD_s_s_accuracy,avg_trial_accuracy,STD_trial_accuracy] = GetClassifierAccuracy(selected_data,Action,features,alpha,limit771,limit773)
 
-
-Action = load('SPD/Event Window.mat');
-Action = Action.Event_window;
-Event=load('SPD/WindowLabel.mat');%WindowLabel
-Event=Event.labelAction;
-
-%%
-psd_small_laplacian = load('SPD/SPD with SmallLaplacian Spatial filtre.mat');
-psd_large_laplacian = load('SPD/SPD with LargeLaplacian Spatial filtre.mat');
-psd_CAR_filter = load('SPD/SPD with CAR Spatial filtre.mat');
-psd_no_spatial_filter = load('SPD/SPD with NO Spatial filtre');
-
-selected_data=psd_CAR_filter.psdt;
-
-window_frequency = 16;
-frequencies = load('SPD/Frequences.mat');
-load('SPD/Frequences.mat');
-
-mu_band = 3:6;
-beta_band = 7:18;
-mu_beta_band = 3:18;
-all_band=1:23;
-
-band = {mu_band, beta_band};
-band_selected = all_band;
-
-
-%%
-
-discrimancy = GetDiscrimancyMap(selected_data, band_selected, window_frequency, frequencies);
-
-%%
 
 %Je recupere les temps de chaque trial ainsi que son label
 start_feedback=Action(:,4);
@@ -40,15 +7,9 @@ end_feedback=Action(:,5);
 trial_label=Action(:,1);
 trial_length=min(end_feedback-start_feedback);
 
-% en fonction de la discriminancy je choisis les features [features x freq electrode]
-features= [14 5]%[24 9; 12 2; 12 3; 12 5; 12 7;12 8;12 11]; %[frequ x channel]
+% A AMELIORER!!!
+selected_features=[features(:,1)./2-1,features(:,2)]; %[frequ_INDEX x channel
 
-%selected_features=[selected_features(:,1)./2-1,selected_features(:,2)]; %[frequ_INDEX x channel
-
-for a=1:size(features,1)
-    freq(a)=find(Frequencies==features(a,1));
-end
-    selected_features=[freq,features(:,2)];
 
 %%
 window_feat=zeros(length(start_feedback),trial_length,size(selected_features,1)); % trial x window x features
@@ -115,9 +76,6 @@ for i=1:K
     single_sample_accuracy(i) =  accuracy( test_label(:,1), predicted_label);
 
     %trial accuracy
-    alpha=0.9;
-    limit771=0.8;
-    limit773=0.2;
     
     decision771=zeros(trial_length,length(test_trials)); %proba     [time x trial]
 
@@ -148,28 +106,21 @@ for i=1:K
     
 end
 
-     avg_s_s_accuracy=mean(single_sample_accuracy)
-     avg_trial_accuracy=mean(trial_accuracy)
+     avg_s_s_accuracy=mean(single_sample_accuracy);
+     avg_trial_accuracy=mean(trial_accuracy);
+     
+     STD_s_s_accuracy=std(single_sample_accuracy);
+     STD_trial_accuracy=std(trial_accuracy);
+    
 
 
 
-%%
-
-plot(decision771(:,1))
-hold on;
-plot(decision771(:,2))
-hold on;
-plot(decision771(:,3))
-hold on;
-plot([1:trial_length],ones(trial_length)*limit771)
-hold on;
-plot([1:trial_length],ones(trial_length)*limit773)
-
-%%
 
 function [class_accuracy]=accuracy(real_label, predicted_label)
     false=nnz(real_label-predicted_label);
     
     class_accuracy=1-(false/length(real_label));
 end
-    
+
+end
+
