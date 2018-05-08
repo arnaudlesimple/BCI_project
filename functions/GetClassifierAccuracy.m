@@ -1,4 +1,4 @@
-function [avg_s_s_accuracy,STD_s_s_accuracy,avg_trial_accuracy,STD_trial_accuracy] = GetClassifierAccuracy(selected_data,Action,features,alpha,limit771,limit773)
+function [avg_s_s_accuracy,STD_s_s_accuracy,avg_trial_accuracy,STD_trial_accuracy] = GetClassifierAccuracy(selected_data,Action,features,alpha,limit771,limit773,Frequencies_set)
 
 
 %Je recupere les temps de chaque trial ainsi que son label
@@ -8,8 +8,14 @@ trial_label=Action(:,1);
 trial_length=min(end_feedback-start_feedback);
 
 % A AMELIORER!!!
-selected_features=[features(:,1)./2-1,features(:,2)]; %[frequ_INDEX x channel
+freq=zeros(size(features,1),1);
 
+for d=1:size(features,1)
+ freq(d)=find(Frequencies_set==features(d,1));
+ end
+% selected_features=[selected_features(:,1)./2-1,selected_features(:,2)]; %[frequ_INDEX x channel
+
+selected_features=[freq,features(:,2)];
 
 %%
 window_feat=zeros(length(start_feedback),trial_length,size(selected_features,1)); % trial x window x features
@@ -20,8 +26,8 @@ for i=1:length(start_feedback)
     Window_single_feat=[];
     
     %j'extrais tout les features pour une cue
-    for a=1:length(selected_features)
-    Window_single_feat=[Window_single_feat,selected_data(start_feedback(i):end_feedback(i),selected_features(a,2),selected_features(a,1))];
+    for a=1:size(selected_features,1)
+    Window_single_feat=[Window_single_feat,selected_data(start_feedback(i):end_feedback(i),selected_features(a,1),selected_features(a,2))];
     end
     
     
@@ -101,7 +107,7 @@ for i=1:K
             end
         end
         
-     trial_accuracy(i,1)=accuracy(TestTrialLabel,final_classification)
+     trial_accuracy(i,1)=accuracy(TestTrialLabel,final_classification);
      
     
 end

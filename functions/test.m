@@ -43,7 +43,7 @@ mean_trial=zeros(1,length(alpha));
 
 for i=1:length(alpha)
     
-    [mean_window(i),std_window,mean_trial(i),std_trial]=GetClassifierAccuracy(selected_data,Action,features,alpha(i),limit771,limit773) 
+    [mean_window(i),std_window,mean_trial(i),std_trial]=GetClassifierAccuracy(selected_data,Action,features,alpha(i),limit771,limit773,Frequencies);
 end
 
 plot(alpha,mean_window,'r')
@@ -54,7 +54,7 @@ plot(alpha,mean_trial,'b')
 %% different number of features
 
 %discrimancy = GetDiscrimancyMap(selected_data, band_selected, window_frequency, frequencies);
-features= [32 13;4 3;24 9; 12 2; 12 3; 12 5; 12 7;12 8;12 11;12 6; 12 10; 10 9; 12 4; 16 2 ;10 5;4 15;4 3; 12 13; 14 11; 24 16;30 2;30 12]; %[frequ x channel]
+features=[32 13;4 3;24 9; 12 2; 12 3; 12 5; 12 7;12 8;12 11;12 6; 12 10; 10 9; 12 4; 16 2 ;10 5;4 15;4 3; 12 13; 14 11; 24 16;30 2;30 12]; %[frequ x channel]
 
 
 alpha=0.2;
@@ -64,19 +64,19 @@ limit773=0.3;
 mean_window=zeros(1,length(features));
 mean_trial=zeros(1,length(features));
 
-for i=2:length(features)
+for i=2:size(features,1)
     
-    [mean_window(i),std_window,mean_trial(i),std_trial]=GetClassifierAccuracy(selected_data,Action,features(1:i,:),alpha,limit771,limit773) 
+    [mean_window(i),std_window,mean_trial(i),std_trial]=GetClassifierAccuracy(selected_data,Action,features(1:i,:),alpha,limit771,limit773,Frequencies) ;
 end
 
 plot(1:length(features),mean_window,'r')
 hold on;
 plot(1:length(features),mean_trial,'b')
     
-%% same but with PCA
+%% easyboizzy
 
 %discrimancy = GetDiscrimancyMap(selected_data, band_selected, window_frequency, frequencies);
-features= [24 9; 12 2; 12 3; 12 5; 12 7;12 8;12 11;12 6; 12 10; 10 9; 12 4; 16 2 ;10 5;4 15]; %[frequ x channel]
+features=[32 13;4 3;24 9; 12 2; 12 3; 12 5; 12 7;12 8;12 11;12 6; 12 10; 10 9; 12 4; 16 2 ;10 5;4 15;4 3; 12 13; 14 11; 24 16;30 2;30 12]; %[frequ x channel]
 
 
 alpha=0.2;
@@ -88,7 +88,7 @@ mean_trial=zeros(1,length(features));
 
 for i=2:length(features)
     
-    [mean_window(i),std_window,mean_trial(i),std_trial]=GetClassifierAccuracy(selected_data,Action,features(1:i,:),alpha,limit771,limit773) 
+    [mean_window(i),std_window,mean_trial(i),std_trial]=GetClassifierAccuracy(selected_data,Action,features(1:i,:),alpha,limit771,limit773,Frequencies) 
 end
 
 plot(1:length(features),mean_window,'r')

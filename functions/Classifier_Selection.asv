@@ -41,14 +41,19 @@ trial_label=Action(:,1);
 trial_length=min(end_feedback-start_feedback);
 
 % en fonction de la discriminancy je choisis les features [features x freq electrode]
-features= [13 5]%[24 9; 12 2; 12 3; 12 5; 12 7;12 8;12 11]; %[frequ x channel]
+ features=[24 9; 14 2; 8 3; 4 5; 18 7;12 8;48 11]; %[frequ x channel]
+ freq=zeros(size(features,1),1);
+ 
+ for d=1:size(features,1)
+ freq(d)=find(Frequencies==features(d,1));
+ end
+% selected_features=[selected_features(:,1)./2-1,selected_features(:,2)]; %[frequ_INDEX x channel
 
-%selected_features=[selected_features(:,1)./2-1,selected_features(:,2)]; %[frequ_INDEX x channel
-
-for a=1:length(features)
-    freq(a)=find(Frequencies==features(a,1));
-end
-    selected_features=[freq,features(:,2)];
+selected_features=[freq,features(:,2)];
+% for a=1:size(features,1)
+%     freq(a)=find(Frequencies==features(a,1));
+% end
+%     selected_features=[freq,features(:,2)];
 
 %%
 window_feat=zeros(length(start_feedback),trial_length,size(selected_features,1)); % trial x window x features
@@ -59,8 +64,8 @@ for i=1:length(start_feedback)
     Window_single_feat=[];
     
     %j'extrais tout les features pour une cue
-    for a=1:length(selected_features)
-    Window_single_feat=[Window_single_feat,selected_data(start_feedback(i):end_feedback(i),selected_features(a,2),selected_features(a,1))];
+    for a=1:size(selected_features,1)
+    Window_single_feat=[Window_single_feat,selected_data(start_feedback(i):end_feedback(i),selected_features(a,1),selected_features(a,2))];
     end
     
     
