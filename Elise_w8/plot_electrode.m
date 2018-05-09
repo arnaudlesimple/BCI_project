@@ -2,9 +2,9 @@ clc
 clear all
 close all
 %% Extract data
-load('/Users/kientzelise/Documents/EPFL/Master/Master2/BCI/Projet/ProjetGit/BCI_project/SPD/SPD with CAR Spatial filtre.mat');
-load('/Users/kientzelise/Documents/EPFL/Master/Master2/BCI/Projet/ProjetGit/BCI_project/SPD/WindowLabel.mat');
-load ('/Users/kientzelise/Documents/EPFL/Master/Master2/BCI/Projet/ProjetGit/BCI_project/SPD/Frequences.mat');
+load('./Users/kientzelise/Documents/EPFL/Master/Master2/BCI/Projet/ProjetGit/BCI_project/SPD/SPD with CAR Spatial filtre.mat');
+load('./Users/kientzelise/Documents/EPFL/Master/Master2/BCI/Projet/ProjetGit/BCI_project/SPD/WindowLabel.mat');
+load ('./Users/kientzelise/Documents/EPFL/Master/Master2/BCI/Projet/ProjetGit/BCI_project/SPD/Frequences.mat');
 
 tot_num_elec = size(psdt,3);
 band = 'mu_band'; 
