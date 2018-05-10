@@ -9,7 +9,7 @@ function getFrequencyTimePlot(psd, band, window_frequency, frequencies)
     for n_electrode = 1:number_electrode
         PSD_both_feet = mean(Epoch_both_feet(:,:,:,n_electrode),3);
         BaseLine = mean(mean(Baseline_both_feet(:,:,:,n_electrode),3));
-        ERD_ERS = (10.*log10(PSD_both_feet) - 10.*log10(BaseLine)) ./ (10.*log10(BaseLine));
+        ERD_ERS = 10.*(log10(PSD_both_feet+1) - log10(BaseLine+1)) ./ log10(BaseLine+1);
         subplot(4,4,n_electrode)
         imagesc([0:trial_length_feet/window_frequency],frequencies.Frequencies(band), transpose(ERD_ERS))
         c = colorbar; 
@@ -31,7 +31,7 @@ function getFrequencyTimePlot(psd, band, window_frequency, frequencies)
     for n_electrode = 1:number_electrode
         PSD_both_hand = mean(Epoch_both_hands(:,:,:,n_electrode),3);
         BaseLine = mean(mean(Baseline_both_hands(:,:,:,n_electrode),3));
-        ERD_ERS = (10.*log10(PSD_both_hand) - 10.*log10(BaseLine)) ./ (10.*log10(BaseLine));
+        ERD_ERS = 10.*(log10(PSD_both_hand+1) - log10(BaseLine+1)) ./ log10(BaseLine+1);
 
         subplot(4,4,n_electrode)
         imagesc([0:trial_length_hand/window_frequency],frequencies.Frequencies(band), transpose(ERD_ERS))

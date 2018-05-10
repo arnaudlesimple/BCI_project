@@ -17,7 +17,7 @@ for n_elec = 1:tot_num_elec
     hold on;
     plot(log10([PSD_baseline_both_hands; PSD_both_hands]));
     hold on;
-    fixation_duration = length(PSD_baseline_both_hands)
+    fixation_duration = length(PSD_baseline_both_hands);
     line([fixation_duration fixation_duration], get(gca, 'ylim'),'Color','green','LineStyle','--')
     
     title(['Electrode ', num2str(n_elec)])  

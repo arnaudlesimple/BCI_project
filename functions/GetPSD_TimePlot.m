@@ -1,24 +1,6 @@
-function [Epoch_both_feet, Epoch_both_hands] = GetPSD_TimePlot_try(psdt, labelAction, Frequencies, n_electrode, band, window_label)
+function GetPSD_TimePlot_Elise(psdt, labelAction, Frequencies, band_freq, window_label)
+
 %% parameters
-
-% %Choose the frequencies band
-% mu_band=1;
-% beta_band=0;
-%if one is 0, the other must be 1
-band_freq=[];
-
-if strcmp(band,'mu_band')
-   band_freq = [3:6];
-end
-
-if strcmp(band,'beta_band')
-   band_freq=[7:18]; 
-end
-
-% Choose the electrode of interest (between 1 and 16)
-% n_electrode = 11;
-
-
 load('SPD/Event Window.mat');
 
 %table with all both_feet trials
@@ -48,37 +30,44 @@ hands_mean_fixation_duration = mean(trial_hands_fixation);
 trial_length_feet = min(trial_feet(:,size(trial_feet,2))-trial_feet(:,1)); 
 trial_length_hands = min(trial_hands(:,size(trial_hands,2))-trial_hands(:,1)); 
 %minimal duration among all trials for the fixation
-fixation_duration=mean(hands_mean_fixation_duration,feet_mean_fixation_duration)
+fixation_duration=mean(hands_mean_fixation_duration,feet_mean_fixation_duration);
 %% Get PSD values for each event
 
-PSD_both_feet = zeros(trial_length_feet,length(band_freq),num_trial_feet); %PDS vs time for each band and for each trial
-PSD_both_hands = zeros(trial_length_hands,length(band_freq),num_trial_hands);
+tot_num_elec = size(psdt,3);
+figure()
+for n_electrode=1:tot_num_elec
 
-% Epoch_both_hands = ;
- Epoch_both_feet = zeros(trial_length_feet,length(band_freq),num_trial_feet);
+    subplot(4,4,n_electrode)
 
-for trial_number = 1:num_trial_feet
-    %feet_trial_samples = [trial_feet(trial_number,1):trial_feet(trial_number,size(trial_feet,2))];
-    % Extract mean PSD over time from both feet
-    Epoch_both_feet(:,:,trial_number) = psdt(trial_feet(trial_number,1):(trial_feet(trial_number,1)+trial_length_feet-1), band_freq ,n_electrode);
+    PSD_both_feet = zeros(trial_length_feet,length(band_freq),num_trial_feet); %PDS vs time for each band and for each trial
+    PSD_both_hands = zeros(trial_length_hands,length(band_freq),num_trial_hands);
+
+    % Epoch_both_hands = ;
+     Epoch_both_feet = zeros(trial_length_feet,length(band_freq),num_trial_feet);
+
+    for trial_number = 1:num_trial_feet
+        %feet_trial_samples = [trial_feet(trial_number,1):trial_feet(trial_number,size(trial_feet,2))];
+        % Extract mean PSD over time from both feet
+        Epoch_both_feet(:,:,trial_number) = psdt(trial_feet(trial_number,1):(trial_feet(trial_number,1)+trial_length_feet-1), band_freq ,n_electrode);
+
+    end
+
+    for trial_number = 1:num_trial_hands
+        Epoch_both_hands(:,:,trial_number) = psdt(trial_hands(trial_number,1):(trial_hands(trial_number,1)+trial_length_hands-1), band_freq ,n_electrode);
+    end
+
+    %% average the psd over frequencies and over trials
+
+    PSD_both_feet = mean(mean(Epoch_both_feet(:,:,:),3),2)
+    PSD_both_hands = mean(mean(Epoch_both_hands(:,:,:),3),2);
+
+    %% plot
+    plot(log10(PSD_both_feet)); hold on;
+    plot(log10(PSD_both_hands));
+    hold on;
+    line([fixation_duration fixation_duration], get(gca, 'ylim'),'Color','green','LineStyle','--')
+    title(['Electrode ', num2str(n_electrode)])
+end
+legend('both feet','both hands','end of fixation');
 
 end
-
-for trial_number = 1:num_trial_hands
-    Epoch_both_hands(:,:,trial_number) = psdt(trial_hands(trial_number,1):(trial_hands(trial_number,1)+trial_length_hands-1), band_freq ,n_electrode);
-end
-
-%% average the psd over frequencies and over trials
-
-PSD_both_feet = mean(mean(Epoch_both_feet(:,:,:),3),2);
-PSD_both_hands = mean(mean(Epoch_both_hands(:,:,:),3),2);
-
-%% plot
-plot(log10(PSD_both_feet)); hold on;
-plot(log10(PSD_both_hands));
-hold on;
-line([fixation_duration fixation_duration], get(gca, 'ylim'),'Color','green','LineStyle','--')
-
-
-end
-
