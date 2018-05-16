@@ -41,7 +41,7 @@ trial_label=Action(:,1);
 trial_length=min(end_feedback-start_feedback);
 
 % en fonction de la discriminancy je choisis les features [features x freq electrode]
- features=[24 9; 14 2; 8 3; 4 5; 18 7;12 8;48 11]; %[frequ x channel]
+ features=[24 9]; %[frequ x channel]
  freq=zeros(size(features,1),1);
  
  for d=1:size(features,1)
@@ -104,7 +104,7 @@ for i=1:K
     % label =[time x cue_label|trial_label]
     
     for n=1:partition.TrainSize(i)
-        training_set=[training_set;squeeze(window_feat(train_trials(n),:,:))];
+        training_set=[training_set,squeeze(window_feat(train_trials(n),:,:))];
         train_label=[train_label;squeeze(window_label(train_trials(n),:,:))];
     end
     
@@ -113,7 +113,7 @@ for i=1:K
         test_label=[test_label;squeeze(window_label(test_trials(n),:,:))];
     end
     
-    classifier = fitcdiscr(training_set, train_label(:,1), 'discrimtype', 'linear'); %train an LDA classifier
+    classifier = fitcdiscr(training_set', train_label(:,1), 'discrimtype', 'linear'); %train an LDA classifier
 
     [predicted_label,score,cost] = predict(classifier, testing_set); %score [771 773]
 

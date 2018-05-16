@@ -79,7 +79,7 @@ for i=1:10
 training_set_index = find(partition_N.training(i));
 testing_set_index = find(partition_N.test(i));
 
-features_training=window_feat(window_label(:,2)==;
+%features_training=window_feat(window_label(:,2)==;
 features_testing=window_feat(testing_set_index,:);
 
 classifier = fitcdiscr(features_training, window_label(training_set_index), 'discrimtype', 'linear'); %train an LDA classifier

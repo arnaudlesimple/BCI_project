@@ -1,5 +1,16 @@
-function [avg_s_s_accuracy,STD_s_s_accuracy,avg_trial_accuracy,STD_trial_accuracy] = GetClassifierAccuracy(selected_data,Action,features,alpha,limit771,limit773,Frequencies_set)
+function [avg_s_s_accuracy,STD_s_s_accuracy,avg_trial_accuracy,STD_trial_accuracy] = GetClassifierAccuracy(selected_data,Action,features,alpha,limit771,limit773,Frequencies_set,Classifier)
 
+
+switch Classifier
+    case 1
+        Classifier='linear'
+    case 2
+        Classifier='diaglinear'
+    case 3
+        Classifier='quadratic'
+    case 4
+        Classifier='diagquadratic'
+end
 
 %Je recupere les temps de chaque trial ainsi que son label
 start_feedback=Action(:,4);
@@ -7,7 +18,7 @@ end_feedback=Action(:,5);
 trial_label=Action(:,1);
 trial_length=min(end_feedback-start_feedback);
 
-% A AMELIORER!!!
+
 freq=zeros(size(features,1),1);
 
 for d=1:size(features,1)
@@ -65,21 +76,39 @@ for i=1:K
     % pour utiliser fitcdiscr il faut une 2D donc je mets à la suite
     % label =[time x cue_label|trial_label]
     
-    for n=1:partition.TrainSize(i)
-        training_set=[training_set;squeeze(window_feat(train_trials(n),:,:))];
-        train_label=[train_label;squeeze(window_label(train_trials(n),:,:))];
+    if size(features,1) ~=1
+        for n=1:partition.TrainSize(i)
+            training_set=[training_set;squeeze(window_feat(train_trials(n),:,:))];
+            train_label=[train_label;squeeze(window_label(train_trials(n),:,:))];
+        end
+
+        for n=1:partition.TestSize(i)
+            testing_set=[testing_set;squeeze(window_feat(test_trials(n),:,:))];
+            test_label=[test_label;squeeze(window_label(test_trials(n),:,:))];
+        end
     end
     
-    for n=1:partition.TestSize(i)
-        testing_set=[testing_set;squeeze(window_feat(test_trials(n),:,:))];
-        test_label=[test_label;squeeze(window_label(test_trials(n),:,:))];
+    %car window_feat a desormais 2D
+    if size(features,1) ==1
+        
+        for n=1:partition.TrainSize(i)
+            test=squeeze(window_feat(train_trials(n),:));
+            test2=window_feat(train_trials(n),:);
+            training_set=[training_set;window_feat(train_trials(n),:)'];
+            train_label=[train_label;squeeze(window_label(train_trials(n),:,:))];
+        end
+
+        for n=1:partition.TestSize(i)
+            testing_set=[testing_set;window_feat(test_trials(n),:)'];
+            test_label=[test_label;squeeze(window_label(test_trials(n),:,:))];
+        end  
     end
     
-    classifier = fitcdiscr(training_set, train_label(:,1), 'discrimtype', 'linear'); %train an LDA classifier
+    classifier = fitcdiscr(training_set, train_label(:,1), 'discrimtype', Classifier); %train an LDA classifier
 
     [predicted_label,score,cost] = predict(classifier, testing_set); %score [771 773]
 
-    single_sample_accuracy(i) =  accuracy( test_label(:,1), predicted_label);
+    single_sample_accuracy(i) =  error( test_label(:,1), predicted_label);
 
     %trial accuracy
     
@@ -107,7 +136,7 @@ for i=1:K
             end
         end
         
-     trial_accuracy(i,1)=accuracy(TestTrialLabel,final_classification);
+     trial_accuracy(i,1)=error(TestTrialLabel,final_classification);
      
     
 end
@@ -122,10 +151,10 @@ end
 
 
 
-function [class_accuracy]=accuracy(real_label, predicted_label)
+function [class_error]=error(real_label, predicted_label)
     false=nnz(real_label-predicted_label);
     
-    class_accuracy=1-(false/length(real_label));
+    class_error=(false/length(real_label));
 end
 
 end
