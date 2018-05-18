@@ -1,7 +1,7 @@
-function GetPSD_TimePlot_Elise(psdt, labelAction, Frequencies, band_freq, window_label)
+function GetPSD_TimePlot(psdt, labelAction, Frequencies, band_freq, window_label, files)
 
 %% parameters
-load('SPD/Event Window.mat');
+load(['SPD/' files '/Event Window.mat']);
 
 %table with all both_feet trials
 index_trial_feet = find(Event_window==771);

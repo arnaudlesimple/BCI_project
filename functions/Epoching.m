@@ -1,7 +1,10 @@
-function [Epoch_both_feet, Epoch_both_hands, Baseline_both_feet, Baseline_both_hands,trial_length_feet, trial_length_hand] = Epoching(psd, band)
+function [Epoch_both_feet, Epoch_both_hands, Baseline_both_feet, Baseline_both_hands,trial_length_feet, trial_length_hand] = Epoching(psd, band, files)
+
+    % Transform power in db
+    psd_db = 10.*log10(psd+1);
 
     % Extract samples positions for both feet and both hands separately
-    load('SPD/Event Window.mat')
+    load(['SPD/' files '/Event Window.mat']);
     Start_End_Feet = Event_window(find(Event_window(:,1) == 771),:);
     Start_End_Hand = Event_window(find(Event_window(:,1) == 773),:);
 
@@ -26,20 +29,20 @@ function [Epoch_both_feet, Epoch_both_hands, Baseline_both_feet, Baseline_both_h
 
             % Continuous feedback
             trial_samples = [Start_End_Feet(trial_number,4):Start_End_Feet(trial_number,4) + trial_length_feet-1];
-            Epoch_both_feet(:,:,trial_number, n_electrode) = psd(trial_samples, band, n_electrode);
+            Epoch_both_feet(:,:,trial_number, n_electrode) = psd_db(trial_samples, band, n_electrode);
             % Baseline:
             baseline_samples = [Start_End_Feet(trial_number,2):Start_End_Feet(trial_number,2) + baseline_length_feet-1];
-            Baseline_both_feet(:,:,trial_number, n_electrode) = psd(baseline_samples, band, n_electrode);
+            Baseline_both_feet(:,:,trial_number, n_electrode) = psd_db(baseline_samples, band, n_electrode);
 
 
             % --> Both hands:
 
             % Continuous feedback
             trial_samples = [Start_End_Hand(trial_number,4):Start_End_Hand(trial_number,4) + trial_length_feet-1];
-            Epoch_both_hands(:,:,trial_number, n_electrode) = psd(trial_samples, band, n_electrode); 
+            Epoch_both_hands(:,:,trial_number, n_electrode) = psd_db(trial_samples, band, n_electrode); 
             % Baseline
             baseline_samples = [Start_End_Hand(trial_number,2):Start_End_Hand(trial_number,2) + baseline_length_hand-1];
-            Baseline_both_hands(:,:,trial_number, n_electrode) = psd(baseline_samples, band, n_electrode);
+            Baseline_both_hands(:,:,trial_number, n_electrode) = psd_db(baseline_samples, band, n_electrode);
         end
     end
 

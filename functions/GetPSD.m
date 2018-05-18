@@ -1,4 +1,4 @@
-function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel)
+function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel, files)
 
     %% Parameter
 
@@ -9,22 +9,35 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
     %% Data extraction:
     %1) For each gdf file, import data and events
     %Dimension of the data: [NSamples x NChannels]
-    addpath(genpath('../projects_common_material/eeglab_current'))
-    Map=load('../projects_common_material/channel_location_16_10-20_mi.mat')
+    addpath(genpath('projects_common_material/eeglab_current'))
+    Map=load('projects_common_material/channel_location_16_10-20_mi.mat')
 
-    addpath(genpath('../projects_common_material/biosig'));
-    filename1 = 'project2-data-example/anonymous.20170613.161402.offline.mi.mi_bhbf.gdf';
-    filename2 = 'project2-data-example/anonymous.20170613.162331.offline.mi.mi_bhbf.gdf';
-    filename3 = 'project2-data-example/anonymous.20170613.162934.offline.mi.mi_bhbf.gdf';
-    [rec1, info1] = sload(filename1);
-    [rec2, info2] = sload(filename2);
-    [rec3, info3] = sload(filename3);
+    addpath(genpath('projects_common_material/biosig'));
+    
+    if strcmp(files, 'Elise')
+        path = ['data/' files '/20180312/'];
+    elseif strcmp(files, 'Arnaud')
+        path = ['data/' files '/20180319/'];
+    elseif strcmp(files, 'Anonymous')
+        path = ['data/' files '/'];
+    end
 
-    % put data from 3 files into one matrix
-    AllRec = [rec1;rec2;rec3];
-    sizeRec = [length(rec1),length(rec2),length(rec3)];
-    Reclabel = [ones(sizeRec(1),1); ones(sizeRec(2),1)*2; ones(sizeRec(3),1)*3];
+    % Initialization
+    filenames = dir([path '*offline*']);
+    [AllRec, sizeRec, Reclabel] = deal([],[],[]);
+    [info1, info2, info3] = deal([],[],[]); 
 
+    for file_num = 1:length(filenames)
+        eval(['filename' mat2str(file_num) '= [''' path '''' ' ''' filenames(file_num).name '''];']);
+        eval(['[rec' mat2str(file_num) ', info' mat2str(file_num) '] = sload(filename' mat2str(file_num) ');']);
+
+        % Put data from 3 files into one matrix
+        % -> Define AllRec, sizeRec and Reclabel
+        eval(['AllRec = [AllRec; rec' mat2str(file_num) '];']);
+        eval(['sizeRec = [sizeRec, length(rec' mat2str(file_num) ')];']);
+        eval(['Reclabel = [Reclabel; ones(sizeRec(' mat2str(file_num) '),1) *' mat2str(file_num) '];']); 
+    end 
+    
     AllRecInit = [Reclabel, AllRec(:,[1:16])]; %without reference
     % s: rows correspond to the samples
     %    first column is the filename label
@@ -32,8 +45,12 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
     %    column 18 -> reference electrode %je l'enlève
 
     % Update position data
-    info2.EVENT.POS = info2.EVENT.POS + length(rec1);
-    info3.EVENT.POS = info3.EVENT.POS + length(rec2) + length(rec1);
+    if ~isempty(info2)
+        info2.EVENT.POS = info2.EVENT.POS + length(rec1);
+    end
+    if ~isempty(info3)
+        info3.EVENT.POS = info3.EVENT.POS + length(rec2) + length(rec1);
+    end
 
     %% Isolate interesting bandpass
 
@@ -253,17 +270,17 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
     labelAction(Window_BoomTargetHit) = 897;
     labelAction(Window_BoomTargetMiss) = 898;
 
-    save('..\SPD\WindowLabel.mat','labelAction');
-    save('..\SPD\Frequences.mat','Frequencies');
+    save(['functions\SPD\' files '\WindowLabel.mat'],'labelAction');
+    save(['functions\SPD\' files '\Frequences.mat'],'Frequencies');
 
      end;
 
     %%
-    name= ['..\SPD\SPD with ',filtre,' Spatial filtre.mat'];
+    name= ['functions\SPD\' files '\SPD with ',filtre,' Spatial filtre.mat'];
     save(name,'psdt');
 
-    save('..\SPD\Feet_Cue_window','Feet_Cue_window');
-    save('..\SPD\Hand_Cue_window','Hand_Cue_window');
-    save('..\SPD\Event Window','Event_window');
+    save(['functions\SPD\' files '\Feet_Cue_window'],'Feet_Cue_window');
+    save(['functions\SPD\' files '\Hand_Cue_window'],'Hand_Cue_window');
+    save(['functions\SPD\' files '\Event Window'],'Event_window');
 
 end
