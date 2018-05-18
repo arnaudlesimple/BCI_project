@@ -11,7 +11,7 @@ create_psd = false;
 topoplot = 0;
 PSD_time_plot = 0;
 PSD_time_plot_Elise = 0;
-Frequency_time_plot = 1;
+Frequency_time_plot = 0;
 Discrimancy_map = 0;
 
 %% Create PSD matrices:
