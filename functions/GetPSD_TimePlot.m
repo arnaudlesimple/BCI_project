@@ -1,7 +1,9 @@
-function GetPSD_TimePlot(psdt, labelAction, Frequencies, band_freq, window_label, files)
+function GetPSD_TimePlot(psdt, labelAction, Frequencies, band_freq, window_label, files, Event_window)
 
 %% parameters
-load(['SPD/' files '/Event Window.mat']);
+% load(['SPD/' files '/Event Window.mat']);
+% % Take only windows that correspond to the selected run
+% Event_window = Event_window(find((Event_window(:,2) > run_ind(1)) & (Event_window(:,5) < run_ind(end))),:);
 
 %table with all both_feet trials
 index_trial_feet = find(Event_window==771);
@@ -30,7 +32,7 @@ hands_mean_fixation_duration = mean(trial_hands_fixation);
 trial_length_feet = min(trial_feet(:,size(trial_feet,2))-trial_feet(:,1)); 
 trial_length_hands = min(trial_hands(:,size(trial_hands,2))-trial_hands(:,1)); 
 %minimal duration among all trials for the fixation
-fixation_duration=mean(hands_mean_fixation_duration,feet_mean_fixation_duration);
+fixation_duration=mean([hands_mean_fixation_duration,feet_mean_fixation_duration]);
 %% Get PSD values for each event
 
 tot_num_elec = size(psdt,3);

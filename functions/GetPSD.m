@@ -52,6 +52,14 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
         info3.EVENT.POS = info3.EVENT.POS + length(rec2) + length(rec1);
     end
 
+    info.EVENT.TYP = [];
+    info.EVENT.POS = [];
+    info.EVENT.DUR = [];
+    for file_num = 1:length(filenames)
+        eval(['info.EVENT.TYP = [info.EVENT.TYP; info' mat2str(file_num) '.EVENT.TYP];'])
+        eval(['info.EVENT.POS = [info.EVENT.POS; info' mat2str(file_num) '.EVENT.POS];'])
+        eval(['info.EVENT.DUR = [info.EVENT.DUR; info' mat2str(file_num) '.EVENT.DUR];'])
+    end
     %% Isolate interesting bandpass
 
 
@@ -127,7 +135,7 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
 
     frequ_psdt=1/window_change; %frequ overlap
 
-    % 62.5 ms = 16 samples
+    % 62.5 ms = 32 samples
     Frequencies=4:2:48;
 
     %look for each recording?
@@ -165,6 +173,16 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
 
      if DoLabel==1
 
+         
+    WindowLabelRun = [];
+    for i=1:length(filenames)
+        LabelRun = find(Reclabel == i);
+        DebutRun(i)=find(window_end > LabelRun(1),1,'first'); %donne index donc deja le numero de la window!!
+        FinRun(i)=find(window_start < LabelRun(end),1,'last');
+        WindowLabelRun=[WindowLabelRun; DebutRun(i),FinRun(i)];
+    end     
+         
+    
 
     BoomTargetHit = 897;
     BoomTargetMiss = 898;
@@ -174,8 +192,8 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
     ContinuousFeedback = 781;
 
 
-    StartPositionsHand = (info1.EVENT.POS(info1.EVENT.TYP == BothHand));
-    EndPositionsHand = StartPositionsHand+(info1.EVENT.DUR(info1.EVENT.TYP == BothHand));
+    StartPositionsHand = (info.EVENT.POS(info.EVENT.TYP == BothHand));
+    EndPositionsHand = StartPositionsHand+(info.EVENT.DUR(info.EVENT.TYP == BothHand));
     Window_BothHand=[];
 
     Hand_Cue_window=zeros(length(StartPositionsHand),2);
@@ -189,8 +207,8 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
     end
 
     %Feet
-    StartPositionsFeet = (info1.EVENT.POS(info1.EVENT.TYP == BothFeet));
-    EndPositionsFeet = StartPositionsFeet+(info1.EVENT.DUR(info1.EVENT.TYP == BothFeet));
+    StartPositionsFeet = (info.EVENT.POS(info.EVENT.TYP == BothFeet));
+    EndPositionsFeet = StartPositionsFeet+(info.EVENT.DUR(info.EVENT.TYP == BothFeet));
     Window_BothFeet=[];
 
     Feet_Cue_window=zeros(length(StartPositionsFeet),2);
@@ -204,8 +222,8 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
 
     %BoomTargetMiss = 898;
 
-    StartPositionsTargetMiss = (info1.EVENT.POS(info1.EVENT.TYP == BoomTargetMiss));
-    EndPositionsTargetMiss = StartPositionsTargetMiss+(info1.EVENT.DUR(info1.EVENT.TYP == BoomTargetMiss));
+    StartPositionsTargetMiss = (info.EVENT.POS(info.EVENT.TYP == BoomTargetMiss));
+    EndPositionsTargetMiss = StartPositionsTargetMiss+(info.EVENT.DUR(info.EVENT.TYP == BoomTargetMiss));
     Window_BoomTargetMiss=[];
 
     for i=1:length(StartPositionsTargetMiss)
@@ -217,8 +235,8 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
 
     %BoomTargetHit = 897;
 
-    StartPositionsTargetHit = (info1.EVENT.POS(info1.EVENT.TYP == BoomTargetHit));
-    EndPositionsTargetHit = StartPositionsTargetHit+(info1.EVENT.DUR(info1.EVENT.TYP == BoomTargetHit));
+    StartPositionsTargetHit = (info.EVENT.POS(info.EVENT.TYP == BoomTargetHit));
+    EndPositionsTargetHit = StartPositionsTargetHit+(info.EVENT.DUR(info.EVENT.TYP == BoomTargetHit));
     Window_BoomTargetHit=[];
 
     for i=1:length(StartPositionsTargetHit)
@@ -230,14 +248,14 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
 
     %%
     %ContinuousFeedback = 781;
-    StartPositionsFeedBack = (info1.EVENT.POS(info1.EVENT.TYP == ContinuousFeedback));
-    EndPositionsFeedBack = StartPositionsFeedBack+(info1.EVENT.DUR(info1.EVENT.TYP == ContinuousFeedback));
+    StartPositionsFeedBack = (info.EVENT.POS(info.EVENT.TYP == ContinuousFeedback));
+    EndPositionsFeedBack = StartPositionsFeedBack+(info.EVENT.DUR(info.EVENT.TYP == ContinuousFeedback));
     Window_ContinuousFeedback=[];
     Start_End_FeedBack=zeros(length(StartPositionsFeedBack),2);
 
     %Fixation = 786
-    StartPositionsFix = (info1.EVENT.POS(info1.EVENT.TYP == Fixation));
-    EndPositionsFix = StartPositionsFix+(info1.EVENT.DUR(info1.EVENT.TYP == Fixation));
+    StartPositionsFix = (info.EVENT.POS(info.EVENT.TYP == Fixation));
+    EndPositionsFix = StartPositionsFix+(info.EVENT.DUR(info.EVENT.TYP == Fixation));
     Window_Fixation=[];
     Start_End_Fixation=zeros(length(StartPositionsFix),2);
 
@@ -253,7 +271,7 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
     FinFixation(i)=find(window_start < EndPositionsFix(i),1,'last');
     Window_Fixation=[Window_Fixation DebutFixation(i):FinFixation(i)];
 
-    type=info1.EVENT.TYP(find(info1.EVENT.POS==(StartPositionsFeedBack(i)))-1);
+    type=info.EVENT.TYP(find(info.EVENT.POS==(StartPositionsFeedBack(i)))-1);
 
     Event_window(i,:)=[type,DebutFixation(i) FinFixation(i) DebutFeedBack(i),FinFeedBack(i)];
 
@@ -282,5 +300,6 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
     save(['functions\SPD\' files '\Feet_Cue_window'],'Feet_Cue_window');
     save(['functions\SPD\' files '\Hand_Cue_window'],'Hand_Cue_window');
     save(['functions\SPD\' files '\Event Window'],'Event_window');
-
+    
+    save(['functions\SPD\' files '\WindowLabelRun'],'WindowLabelRun')
 end

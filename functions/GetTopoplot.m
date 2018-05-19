@@ -19,7 +19,7 @@ function GetTopoplot(psd, freq, window_frequency, frequencies, Event_window, win
         if all_plots
             PSD = psd{a}.psdt;
         else
-            PSD = psd.psdt;
+            PSD = psd;
         end
         PSD_dB=10.*log10(PSD+1);
 

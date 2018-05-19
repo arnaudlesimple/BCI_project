@@ -1,7 +1,7 @@
-function getFrequencyTimePlot(psd, band, window_frequency, frequencies)
+function getFrequencyTimePlot(psd, band, window_frequency, frequencies, files, Event_window)
     
     % Extract epoch 
-    [Epoch_both_feet, Epoch_both_hands, Baseline_both_feet, Baseline_both_hands, trial_length_feet, trial_length_hand] = Epoching(psd, band, files);
+    [Epoch_both_feet, Epoch_both_hands, Baseline_both_feet, Baseline_both_hands, trial_length_feet, trial_length_hand] = Epoching(psd, band, Event_window);
     number_electrode = 16;
 
     % Both feet: for each electrode

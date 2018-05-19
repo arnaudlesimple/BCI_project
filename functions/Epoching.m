@@ -1,10 +1,13 @@
-function [Epoch_both_feet, Epoch_both_hands, Baseline_both_feet, Baseline_both_hands,trial_length_feet, trial_length_hand] = Epoching(psd, band, files)
+function [Epoch_both_feet, Epoch_both_hands, Baseline_both_feet, Baseline_both_hands,trial_length_feet, trial_length_hand] = Epoching(psd, band, Event_window)
 
     % Transform power in db
     psd_db = 10.*log10(psd+1);
-
+    
+%     load(['SPD/' files '/Event Window.mat']);
+%     % Take only windows that correspond to the selected run
+%     Event_window = Event_window(find((Event_window(:,2) > run_ind(1)) & (Event_window(:,5) < run_ind(end))),:);
+    
     % Extract samples positions for both feet and both hands separately
-    load(['SPD/' files '/Event Window.mat']);
     Start_End_Feet = Event_window(find(Event_window(:,1) == 771),:);
     Start_End_Hand = Event_window(find(Event_window(:,1) == 773),:);
 

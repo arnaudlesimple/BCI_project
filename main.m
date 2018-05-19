@@ -3,16 +3,16 @@ clear all
 close all
 
 % Which files do you want to analyse ?
-files = 'Arnaud'; % Anonymous, Elise, Mathieu, Arnaud
+files = 'Anonymous'; % Anonymous, Elise, Mathieu, Arnaud
 % Do you want to compute the psd from raw data ?
-create_psd = true;
+create_psd = false;
 
 % Choose the type of figure to plot: 
 %   1 -> plot
 %   0 -> no plot
-topoplot = 0;
-PSD_time_plot = 0;
-Frequency_time_plot = 0;
+topoplot = 1;
+PSD_time_plot = 1;
+Frequency_time_plot = 1;
 Discrimancy_map = 1;
 
 %% Create PSD matrices:
@@ -35,7 +35,6 @@ addpath(genpath('functions'))
 
 frequencies = load(['SPD/' files '/Frequences.mat']);
 window_label = load(['SPD/' files '/WindowLabel.mat']);
-load(['SPD/' files '/Event Window.mat'])
 
 % Load PSD estimates
 psd_small_laplacian = load(['SPD/' files '/SPD with SmallLaplacian Spatial filtre.mat']);
@@ -53,14 +52,27 @@ band = {mu_band, beta_band};
 % Define psd window frequency
 window_frequency = 16;
 
+% Load the desired run
+run = 1;
+load(['SPD/' files '/WindowLabelRun.mat']);
+if run > size(WindowLabelRun,1)
+    error('The run you have chosen does not exist')
+else
+    run_ind = [WindowLabelRun(run,1):WindowLabelRun(run,2)];
+end
+
+load(['SPD/' files '/Event Window.mat'])
+% Take only windows that correspond to the selected run
+Event_window = Event_window(find((Event_window(:,2) > run_ind(1)) & (Event_window(:,5) < run_ind(end))),:);
 
 % Choose the type of psd and frequency band 
-psd_selected = psd_small_laplacian;
+%psd_selected = psd_large_laplacian.psdt(run_ind,:,:);
+psd_selected = psd_large_laplacian.psdt;
 band_selected = mu_beta_band;
 name = 'Large Laplacian';
 
 %% Get Epoching
-[Epoch_both_feet, Epoch_both_hands, Baseline_both_feet, Baseline_both_hands, trial_length_feet, trial_length_hand] = Epoching(psd_selected.psdt, band_selected, files);
+[Epoch_both_feet, Epoch_both_hands, Baseline_both_feet, Baseline_both_hands, trial_length_feet, trial_length_hand] = Epoching(psd_selected, band_selected, Event_window);
 
 %% Get topoplots
 
@@ -76,17 +88,17 @@ end
 %% PSD time plot
 
 if PSD_time_plot
-    GetPSD_TimePlot(psd_selected.psdt, window_label.labelAction, frequencies.Frequencies, band_selected, window_label, files);
+    GetPSD_TimePlot(psd_selected, window_label.labelAction, frequencies.Frequencies, band_selected, window_label, files, Event_window);
 end
 
 %% Frequency time plots:
 
 if Frequency_time_plot
-    GetFrequencyTimePlot(psd_selected.psdt, band_selected, window_frequency, frequencies);
+    GetFrequencyTimePlot(psd_selected, band_selected, window_frequency, frequencies, files, Event_window);
 end
 
 %% Discrimancy maps:
 
 if Discrimancy_map
-    discrimancy = GetDiscrimancyMap(psd_selected.psdt, band_selected, window_frequency, frequencies, files);
+    discrimancy = GetDiscrimancyMap(psd_selected, band_selected, window_frequency, frequencies, files, Event_window);
 end
