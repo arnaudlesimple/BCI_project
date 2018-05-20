@@ -41,9 +41,23 @@
     load('Classifier\Final classifier Param.mat') %Alpha | Lim
     load('Classifier\Final classifier Features.mat')
     
-    
+   %Features_index=[3 7; 6 8; 8 7; 4 7]
+    %%
     EEG=AllRec(1:512,1:16);
+    sorted_features = sortrows(Features_index,2); % ONLINE les mets dans l'order qui est donné en parametre
+    
+    lim=size(AllRec,1)/512;
+    test=zeros(20,2);
+    
+    for i=2:20
+%     AllRec(512*(i-1):512*i,1:16);
+%     test(i-1,1);
+%     test(i,1);
+    test(i,:)=Online(AllRec(512*(i-1):512*i,1:16),classifier,sorted_features,test(i-1,2),Param(1));
+    end
+    %%
+    plot(test(:,2))
+    hold on;
+    plot(test(:,1))
 
-
-
-    test=Online(EEG,classifier,Features_index);
+    

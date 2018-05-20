@@ -2,22 +2,22 @@ clear
 close all
 
 
-Action = load('SPD/Event Window.mat');
+Action = load('SPD/Anonymous/Event Window.mat');
 Action = Action.Event_window;
-Event=load('SPD/WindowLabel.mat');%WindowLabel
+Event=load('SPD/Anonymous/WindowLabel.mat');%WindowLabel
 Event=Event.labelAction;
 
 %% Attention alpha doit etre penser en terme de practicité car sinon on a pas le temps
-psd_small_laplacian = load('SPD/SPD with SmallLaplacian Spatial filtre.mat');
-psd_large_laplacian = load('SPD/SPD with LargeLaplacian Spatial filtre.mat');
-psd_CAR_filter = load('SPD/SPD with CAR Spatial filtre.mat');
-psd_no_spatial_filter = load('SPD/SPD with NO Spatial filtre');
+psd_small_laplacian = load('SPD/Anonymous/SPD with SmallLaplacian Spatial filtre.mat');
+psd_large_laplacian = load('SPD/Anonymous/SPD with LargeLaplacian Spatial filtre.mat');
+psd_CAR_filter = load('SPD/Anonymous/SPD with CAR Spatial filtre.mat');
+psd_no_spatial_filter = load('SPD/Anonymous/SPD with NO Spatial filtre');
 
 selected_data=psd_CAR_filter.psdt;
 
 window_frequency = 16;
-frequencies = load('SPD/Frequences.mat');
-load('SPD/Frequences.mat');
+frequencies = load('SPD/Anonymous/Frequences.mat');
+load('SPD/Anonymous/Frequences.mat');
 
 mu_band = 3:6;
 beta_band = 7:18;

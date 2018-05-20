@@ -73,10 +73,10 @@ function GetTopoplot(psd, freq, window_frequency, frequencies, Event_window, win
 
 
 
-            subplot(1,2,1)
+            subplot(2,4,a)
             topoplot(mean(FeetERD),Map.chanlocs16);
             title(['Feet topoplot with ' Name(a) 'filter' ]);
-            subplot(1,2,2)
+            subplot(2,4,4+a)
             topoplot(mean(HandERD),Map.chanlocs16);
             title(['Hand topoplot with ' Name(a) 'filter' ]);
 
