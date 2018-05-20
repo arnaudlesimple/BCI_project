@@ -6,7 +6,7 @@ function GetPSD_TimePlot(psdt, labelAction, Frequencies, band_freq, window_label
 % Event_window = Event_window(find((Event_window(:,2) > run_ind(1)) & (Event_window(:,5) < run_ind(end))),:);
 
 %table with all both_feet trials
-index_trial_feet = find(Event_window==771);
+index_trial_feet = find(Event_window(:,1)==771);
 num_trial_feet = length(index_trial_feet);
 trial_feet = zeros(num_trial_feet, size(Event_window,2)-1);
 trial_feet_fixation = zeros(num_trial_feet, 1);

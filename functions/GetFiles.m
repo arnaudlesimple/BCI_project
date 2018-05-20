@@ -1,6 +1,8 @@
-files = 'Elise'
+files = 'Mathieu'
 addpath(genpath('projects_common_material/biosig'));
 if strcmp(files, 'Elise')
+    path = ['data/' files '/20180312/'];
+elseif strcmp(files, 'Mathieu')
     path = ['data/' files '/20180312/'];
 elseif strcmp(files, 'Arnaud')
     path = ['data/' files '/20180319/'];

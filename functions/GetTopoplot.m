@@ -47,7 +47,8 @@ function GetTopoplot(psd, freq, window_frequency, frequencies, Event_window, win
 
 
             HandMove=Action(Action==773,:);
-            FeetMove=Action(Action==771,:);
+            %FeetMove=Action(Action==771,:);
+            FeetMove = Action(find(Action(:,1)==771),:);
 
 
             for i=1:length(HandMove)

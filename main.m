@@ -10,7 +10,7 @@ create_psd = false;
 % Choose the type of figure to plot: 
 %   1 -> plot
 %   0 -> no plot
-topoplot = 0;
+topoplot = 1;
 PSD_time_plot = 1;
 Frequency_time_plot = 1;
 Discrimancy_map = 1;
@@ -23,7 +23,7 @@ if create_psd
     mu_band =0;
     CAR=0;
     SmallLaplacian=0;
-    LargeLaplacian=0;
+    LargeLaplacian=1;
     DoLabel=1;
     % do labe==1 if you want to do psd
 
@@ -83,9 +83,11 @@ if topoplot
     all_action = false;
     all_plots = true;
     if all_plots
-        psd_selected = psd;
+        psd_top = psd;
+    else
+        psd_top = psd_selected;
     end
-    GetTopoplot(psd_selected, band_selected, window_frequency, frequencies, Event_window, window_label, all_plots, all_action, name)
+    GetTopoplot(psd_top, band_selected, window_frequency, frequencies, Event_window, window_label, all_plots, all_action, name)
 end
 
 %% PSD time plot

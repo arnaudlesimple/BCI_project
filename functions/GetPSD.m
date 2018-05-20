@@ -16,6 +16,8 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
     
     if strcmp(files, 'Elise')
         path = ['data/' files '/20180312/'];
+    elseif strcmp(files, 'Mathieu')
+        path = ['data/' files '/20180312/'];
     elseif strcmp(files, 'Arnaud')
         path = ['data/' files '/20180319/'];
     elseif strcmp(files, 'Anonymous')
