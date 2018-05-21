@@ -24,7 +24,6 @@ freq=zeros(size(features,1),1);
 for d=1:size(features,1)
  freq(d)=find(Frequencies_set==features(d,1));
  end
-% selected_features=[selected_features(:,1)./2-1,selected_features(:,2)]; %[frequ_INDEX x channel
 
 selected_features=[freq,features(:,2)];
 
@@ -106,13 +105,16 @@ for i=1:K
     
     classifier = fitcdiscr(training_set, train_label(:,1), 'discrimtype', Classifier); %train an LDA classifier
 
-    [predicted_label,score,cost] = predict(classifier, testing_set); %score [771 773]
+    [Predicted_label,score,cost] = predict(classifier, testing_set); %score [771 773]
 
-    single_sample_accuracy(i) =  error( test_label(:,1), predicted_label);
+    single_sample_accuracy(i) =  error( test_label(:,1), Predicted_label);
 
     %trial accuracy
     
-    decision771=zeros(trial_length,length(test_trials)); %proba     [time x trial]
+    %!!!!! commence a 0.5
+    %decision771=zeros(trial_length,length(test_trials)); %proba     [time x trial]
+    decision771=ones(trial_length,length(test_trials))*0.5; %proba     [time x trial]
+
 
     final_classification=zeros(length(test_trials),1); %label après estimation de chaque trial
     TestTrialLabel=window_label(test_trials,1,1);

@@ -3,7 +3,7 @@ clear all
 close all
 
 % Which files do you want to analyse ?
-files = 'Elise'; % Anonymous, Elise, Mathieu, Arnaud
+files = 'Mathieu'; % Anonymous, Elise, Mathieu, Arnaud
 % Do you want to compute the psd from raw data ?
 create_psd = false;
 
@@ -54,7 +54,7 @@ band = {mu_band, beta_band};
 window_frequency = 16;
 
 % Load the desired run
-run = 1;
+run = 2;
 load(['SPD/' files '/WindowLabelRun.mat']);
 if run > size(WindowLabelRun,1)
     error('The run you have chosen does not exist')
@@ -68,7 +68,7 @@ Event_window = Event_window(find((Event_window(:,2) > run_ind(1)) & (Event_windo
 
 % Choose the type of psd and frequency band 
 %psd_selected = psd_large_laplacian.psdt(run_ind,:,:);
-psd_selected = psd_large_laplacian.psdt;
+psd_selected = psd_small_laplacian.psdt;
 band_selected = mu_beta_band;
 name = 'Large Laplacian';
 

@@ -1,4 +1,4 @@
-function [PosteriorProb] = Online(EEG,classifier,features,decision771,alpha) %alpha
+function [curr_decision,curr_rawprob] = Online(EEG,prev_decision,support)
 
 % on recoit de eeg 1S de recordement à 512Hz toute les secondes, ensuite on
 % doit les filtrer en frequence et spatiallement, extraire PSD et prédire
@@ -6,19 +6,23 @@ function [PosteriorProb] = Online(EEG,classifier,features,decision771,alpha) %al
 
 tic
 
-        %CAR filtration
-        moyenne=mean(EEG,2);
-        EEG =[EEG-moyenne];
+%         %CAR filtration
+%         moyenne=mean(EEG,2);
+%         EEG =[EEG-moyenne];
+
+%small laplacian filtration
+        small_laplacian = load('small_laplacian.mat');
+        EEG = EEG * support.small_laplacian;
 
     % on garde que les elec qui sont dans nos features
-    n_electrode =unique(features(:,2));
+    n_electrode =unique(support.selected_features(:,2));
     EEG=EEG(:,n_electrode);
         
     features_extracted=[];
     
     for i = 1:size(n_electrode,1)
     
-      frequ=features(features(:,2)==n_electrode(i));
+      frequ=support.selected_features(support.selected_features(:,2)==n_electrode(i));
       %car il faut au moins deux elements..
       frequ=[frequ',frequ'];
       
@@ -35,23 +39,17 @@ tic
     
     score=zeros(1,2);
     
-    [predicted_label,score] = predict(classifier, features_extracted); %score [771 773]
+    [predicted_label,score] = predict(support.FINALClassifier, features_extracted); %score [771 773]
     
-    
-       
+           alpha=support.param(1);
 
-           decision771=score(1)*alpha+decision771*(1-alpha);
+           new_decision=score(1)*alpha+prev_decision*(1-alpha);
            
-           PosteriorProb=[1-decision771,decision771];
+           curr_decision=[1-new_decision,new_decision];
+           
+           curr_rawprob=[score(2),score(1)];
 
-%                 if decision771 > limit771
-% 
-%                     final_classification=771;
-%                 else if decision771(l,m) < limit773
-%                       final_classification=773;  
-%                     end
-%                 end
-        
+           %[773 771]
     
     
 toc

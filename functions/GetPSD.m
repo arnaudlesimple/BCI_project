@@ -109,7 +109,6 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
         small_laplacian = load('small_laplacian.mat');
         FilteredData = [Reclabel, AllRecBand(:,2:end) * small_laplacian.lap];
         filtre='SmallLaplacian';
-
     end
 
     % Large laplacian filter

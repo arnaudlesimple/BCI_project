@@ -324,12 +324,11 @@ selected_features=[freq,Final_features(:,2)]
 
 %%
 small_laplacian = load('small_laplacian.mat');
-small_laplacian=small_laplacian.lap;
 
-param=[OptimalAlpha(Classifier),OptimalLim(Classifier)]
+param=[OptimalAlpha(Classifier),OptimalLim(Classifier)];
 
-%%
-save('Classifier\supportMathieu','FINALClassifier','small_laplacian','param','selected_features')
+
+save('Classifier\supportMathieu','FinalClassifier','small_laplacian.lap','Param','selected_features')
 
 
 
