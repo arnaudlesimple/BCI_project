@@ -11,7 +11,7 @@ tic
 %         EEG =[EEG-moyenne];
 
 %small laplacian filtration
-        small_laplacian = load('small_laplacian.mat');
+        %small_laplacian = load('small_laplacian.mat');
         EEG = EEG * support.small_laplacian;
 
     % on garde que les elec qui sont dans nos features
@@ -56,3 +56,4 @@ toc
 
 end
 
+alpha:.0.01-0.07

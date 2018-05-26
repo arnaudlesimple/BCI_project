@@ -32,8 +32,8 @@
         [curr_decision(i,:),curr_rawprob(i,:)]=Online(AllRec(512*(i-1):512*i,1:16),curr_decision(i-1,2),B);
     end
     %%
-    plot(curr_decision(:,2))
+    plot(curr_decision(:,2),'r')
     hold on;
-    plot(curr_rawprob(:,2))
+    plot(curr_rawprob(:,2),'g')
 
     

@@ -2,20 +2,20 @@ clear
 close all
 
 
-ActionM = load('SPD/Mathieu/Event Window.mat');
+ActionM = load('SPD/Elise/Event Window.mat');
 ActionM = ActionM.Event_window;
-EventM=load('SPD/Mathieu/WindowLabel.mat');%WindowLabel
+EventM=load('SPD/Elise/WindowLabel.mat');%WindowLabel
 EventM=EventM.labelAction;
-Run=load('SPD/Mathieu/WindowLabelRun.mat');%WindowLabel
+Run=load('SPD/Elise/WindowLabelRun.mat');%WindowLabel
 Run=Run.WindowLabelRun;
 
-Action=ActionM(1:60,:);
+ActionTrain=ActionM(1:60,:);
 Action1=ActionM(1:30,:);
 Action2=ActionM(31:60,:);
 
 ActionTest=ActionM(61:end,:);
 
-Event=EventM(1:13266,1);
+EventTrain=EventM(1:14193,1);
 Event1=EventM(1:6722,1);
 Event2=EventM(6723:13266,1);
 
@@ -23,17 +23,17 @@ EventTest=EventM(13267:end,1);
 
 
 %% Attention alpha doit etre penser en terme de practicité car sinon on a pas le temps
-psd_small_laplacian = load('SPD/Mathieu/SPD with SmallLaplacian Spatial filtre.mat');
-psd_large_laplacian = load('SPD/Mathieu/SPD with LargeLaplacian Spatial filtre.mat');
-psd_CAR_filter = load('SPD/Mathieu/SPD with CAR Spatial filtre.mat');
-psd_no_spatial_filter = load('SPD/Mathieu/SPD with NO Spatial filtre');
+psd_small_laplacian = load('SPD/Elise/SPD with SmallLaplacian Spatial filtre.mat');
+psd_large_laplacian = load('SPD/Elise/SPD with LargeLaplacian Spatial filtre.mat');
+psd_CAR_filter = load('SPD/Elise/SPD with CAR Spatial filtre.mat');
+psd_no_spatial_filter = load('SPD/Elise/SPD with NO Spatial filtre');
 
-selected_dataM=psd_small_laplacian.psdt;
+selected_data=psd_small_laplacian.psdt;
 
-selected_data1=selected_dataM(1:6722,:,:);
-selected_data2=selected_dataM(6723:13266,:,:);
-selected_data=selected_dataM(1:13266,:,:);
-selected_data_Train=selected_dataM(13267:end,:,:);
+% selected_data1=selected_data(1:6722,:,:);
+% selected_data2=selected_data(6723:13266,:,:);
+% selected_data=selected_data(1:13266,:,:);
+% selected_data_Train=selected_data(13267:end,:,:);
 
 
 window_frequency = 16;
@@ -50,19 +50,23 @@ band_selected = all_band;
 
 Classifier=[1,2,3,4] %["linear","diaglinear","quadratic","diagquadratic"];
 %%
-discrimancy = GetDiscrimancyMap(selected_dataM, band_selected, window_frequency, frequencies,'inutile',Action1);
-discrimancy = GetDiscrimancyMap(selected_dataM, band_selected, window_frequency, frequencies,'inutile',Action2);
-discrimancy = GetDiscrimancyMap(selected_dataM, band_selected, window_frequency, frequencies,'inutile',Action);
+discrimancy = GetDiscrimancyMap(selected_data, band_selected, window_frequency, frequencies,'inutile',Action1);
+discrimancy = GetDiscrimancyMap(selected_data, band_selected, window_frequency, frequencies,'inutile',Action2);
+%%
+discrimancy = GetDiscrimancyMap(selected_data, band_selected, window_frequency, frequencies,'inutile',ActionTrain);
 
 
 
 %% Mathieu
 features= [22 13; 24 15; 32 13; 30 13; 8 13; 22 6; 30 7; 6 7]; %[frequ x channel]
-features=sortrows(features,2)
+%% ELise
+features=  [12 7; 10 7; 12 11; 10 11];
 
-alpha=0:0.1:1;
-limit771=0.7;
-limit773=0.3;
+features=sortrows(features,2);
+
+alpha=0.01:0.01:0.07;
+limit771=0.8;
+limit773=0.2;
 
 
 %% test 4 classifier
@@ -75,7 +79,7 @@ for Classifier=1:4
 
 for i=1:length(alpha)
     
-    [mean_window(i,Classifier),std_window,mean_trial(i,Classifier),std_trial]=GetClassifierAccuracy(selected_data,Action,features,alpha(i),limit771,limit773,Frequencies,Classifier);
+    [mean_window(i,Classifier),std_window,mean_trial(i,Classifier),std_trial]=GetClassifierAccuracy(selected_data,ActionTrain,features,alpha(i),limit771,limit773,Frequencies,Classifier);
 end
 end
 OptimalAlpha=zeros(1,4);
@@ -142,7 +146,7 @@ ylabel('Test error [%]')
 %features=[12 13; 14 11; 24 16; 12 10; 10 9; 12 4; 16 2 ;10 5;4 15;4 3]; %[frequ x channel]
 
 
-alpha=0.2;
+
 limit771=0.7;
 limit773=0.3;
 
@@ -155,7 +159,7 @@ for Classifier=1:4
 for i=1:size(features,1)
     
    
-    [mean_window(i,Classifier),std_window,mean_trial(i,Classifier),std_trial]=GetClassifierAccuracy(selected_data,Action,features(1:i,:),OptimalAlpha(Classifier),limit771,limit773,Frequencies,Classifier) ;
+    [mean_window(i,Classifier),std_window,mean_trial(i,Classifier),std_trial]=GetClassifierAccuracy(selected_data,ActionTrain,features(1:i,:),OptimalAlpha(Classifier),limit771,limit773,Frequencies,Classifier) ;
 end
 end
 %%
@@ -221,8 +225,23 @@ OptimalFeature(4)=xaxis(b);
 xlabel('# of features [ ]')
 ylabel('Test error [%]')
 
-%% test different limit
 
+%% FFS features
+
+Feat_selected=zeros(4,size(features,1));
+mean_trial=zeros(4,1);
+
+for Classifier=1:4
+     [Feat_selected(Classifier,:),historyCrit,historyIn] = FFS(selected_data,ActionTrain,features,OptimalAlpha(Classifier),limit771,limit773,Frequencies,Classifier);
+     mean_trial(Classifier)=historyCrit(end);
+end
+
+%% d
+Final= [mean_trial,Feat_selected]
+
+FFS_features={features(find(Feat_selected(1,:)),:),features(find(Feat_selected(2,:)),:),features(find(Feat_selected(3,:)),:),features(find(Feat_selected(4,:)),:)};
+
+%% test different limit
 
 limit=0:0.05:0.5;
 limit771=0.7;
@@ -237,9 +256,11 @@ for Classifier=1:4
 for i=1:size(limit,2)
     
    
-    [mean_window(i,Classifier),std_window,mean_trial(i,Classifier),std_trial]=GetClassifierAccuracy(selected_data,Action,features(1:OptimalFeature(Classifier),:),OptimalAlpha(Classifier),1-limit(i),limit(i),Frequencies,Classifier) ;
+    [mean_window(i,Classifier),std_window,mean_trial(i,Classifier),std_trial]=GetClassifierAccuracy(selected_data,ActionTrain,FFS_features{Classifier},OptimalAlpha(Classifier),1-limit(i),limit(i),Frequencies,Classifier) ;
 end
 end
+
+%features(1:OptimalFeature(Classifier),:)
 %%
 close all;
 
@@ -311,7 +332,7 @@ Classifier=3;
 Final_features=features(1:OptimalFeature(Classifier),:);
 
 
-[avg_s_s_error,STD_s_s_error,avg_trial_error,STD_trial_error,FINALClassifier]=ClassifierAccuracyOnNewSample(selected_dataM,ActionTest,Action,Final_features,OptimalAlpha(Classifier),1-OptimalLim(Classifier),OptimalLim(Classifier),Frequencies,Classifier)
+[avg_s_s_error,STD_s_s_error,avg_trial_error,STD_trial_error,FINALClassifier]=ClassifierAccuracyOnNewSample(selected_data,ActionTest,ActionTrain,Final_features,OptimalAlpha(Classifier),1-OptimalLim(Classifier),OptimalLim(Classifier),Frequencies,Classifier)
 
 %%
 freq=zeros(size(Final_features,1),1);
@@ -351,7 +372,7 @@ for Classifier=1:1
     for i=1:size(limit,2)
            for j=1:size(alpha,2)
     
-            [mean_window(Classifier,i,j),std_window,mean_trial(Classifier,i,j),std_trial]=GetClassifierAccuracy(selected_data,Action,features,alpha(j),1-limit(i),limit(i),Frequencies,Classifier) ;
+            [mean_window(Classifier,i,j),std_window,mean_trial(Classifier,i,j),std_trial]=GetClassifierAccuracy(selected_data,ActionTrain,features,alpha(j),1-limit(i),limit(i),Frequencies,Classifier) ;
            end
    end
 end
@@ -403,26 +424,8 @@ xlabel('Limit');
 ylabel('alpha');
 zlabel('Accuracy');
 
-%% ffs feature
 
 
-
-%% FFS
-
-alpha=0.1;
-limit771=0.7;
-limit773=0.3;
-
-Feat_selected=zeros(4,size(features,1));
-mean_trial=zeros(4,1);
-
-for Classifier=1:4
-     [Feat_selected(Classifier,:),historyCrit,historyIn] = FFS(selected_data,Action,features,OptimalAlpha(Classifier),1-OptimalLim(Classifier),OptimalLim(Classifier),Frequencies,Classifier);
-     mean_trial(Classifier)=historyCrit(end);
-end
-
-%% d
-Final= [mean_trial,Feat_selected]
 Final_features_index=find(Feat_selected(a,:));
 Final_features=features(Final_features_index,:)
 
@@ -432,9 +435,9 @@ Final_features=features(Final_features_index,:)
     
     %%
     %Je recupere les temps de chaque trial ainsi que son label
-start_feedback=Action(:,4);
-end_feedback=Action(:,5);
-trial_label=Action(:,1);
+start_feedback=ActionTrain(:,4);
+end_feedback=ActionTrain(:,5);
+trial_label=ActionTrain(:,1);
 trial_length=min(end_feedback-start_feedback);
 
 freq=zeros(size(Final_features,1),1);
@@ -466,7 +469,7 @@ for i=1:length(start_feedback)
     all_features= [all_features;trans];
     
     %je fais une matrice 3D [trial x time x cue_label|trial_label]
-    all_label=[all_label;ones(trial_length,1).*Action(i,1)];
+    all_label=[all_label;ones(trial_length,1).*ActionTrain(i,1)];
  end
     
 %%

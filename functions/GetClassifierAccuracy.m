@@ -1,4 +1,4 @@
-function [avg_s_s_accuracy,STD_s_s_accuracy,avg_trial_accuracy,STD_trial_accuracy] = GetClassifierAccuracy(selected_data,Action,features,alpha,limit771,limit773,Frequencies_set,Classifier)
+function [avg_s_s_accuracy,STD_s_s_accuracy,avg_trial_accuracy,STD_trial_accuracy,mean_Confusion] = GetClassifierAccuracy(selected_data,Action,features,alpha,limit771,limit773,Frequencies_set,Classifier)
 
 
 switch Classifier
@@ -59,6 +59,7 @@ partition = cvpartition(length(start_feedback), 'KFold', K);
 %%
 single_sample_accuracy=zeros(K,1);
 trial_accuracy=zeros(K,1);
+Confusion_M=zeros(K,3,3);
 
 for i=1:K
     %je veux avoir les windows des trials ensemble dans les sets
@@ -139,6 +140,8 @@ for i=1:K
         end
         
      trial_accuracy(i,1)=error(TestTrialLabel,final_classification);
+
+     Confusion_M(i,:,:) = confusionmat(TestTrialLabel,final_classification,'Order',[0 771 773]);
      
     
 end
@@ -148,6 +151,8 @@ end
      
      STD_s_s_accuracy=std(single_sample_accuracy);
      STD_trial_accuracy=std(trial_accuracy);
+     
+     mean_Confusion=squeeze(mean(Confusion_M,1));
     
 
 

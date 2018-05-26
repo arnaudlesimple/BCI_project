@@ -1,82 +1,23 @@
-function [sel,historyCrit,historyIn] = FFS(selected_data,Action,features,alpha,limit771,limit773,Frequencies,Classifier)
-
-% %% Data aquirement
-% clear
-% close all
-% 
-% 
-% Action = load('SPD/Event Window.mat');
-% Action = Action.Event_window;
-% Event=load('SPD/WindowLabel.mat');%WindowLabel
-% Event=Event.labelAction;
-% 
-%  %Attention alpha doit etre penser en terme de practicité car sinon on a pas le temps
-% psd_small_laplacian = load('SPD/SPD with SmallLaplacian Spatial filtre.mat');
-% psd_large_laplacian = load('SPD/SPD with LargeLaplacian Spatial filtre.mat');
-% psd_CAR_filter = load('SPD/SPD with CAR Spatial filtre.mat');
-% psd_no_spatial_filter = load('SPD/SPD with NO Spatial filtre');
-% 
-% selected_data=psd_CAR_filter.psdt;
-% 
-% window_frequency = 16;
-% frequencies = load('SPD/Frequences.mat');
-% load('SPD/Frequences.mat');
-% 
-% mu_band = 3:6;
-% beta_band = 7:18;
-% mu_beta_band = 3:18;
-% all_band=1:23;
-% 
-% band = {mu_band, beta_band};
-% band_selected = all_band;
-% 
-% Classifier=[1,2,3,4] %["linear","diaglinear","quadratic","diagquadratic"];
-% %%
-% %discrimancy = GetDiscrimancyMap(selected_data, band_selected, window_frequency, frequencies);
-% %%
-% features= [24 9; 12 2; 12 3; 12 5; 12 7;12 8;12 11]; %[frequ x channel]
-% 
-% alpha=0.1;
-% limit771=0.7;
-% limit773=0.3;
-% 
-% 
-% 
-% %%
+function [selected_features,historyCrit,historyIn] = FFS(selected_data,Action,features,alpha,limit771,limit773,Frequencies,Classifier)
 
 
-maxfeat=size(features,1); %choisit 
+
+
+   maxfeat=size(features,1); %choisit 
 
    list_features=zeros(1,maxfeat);%1 si choisit 0 sinon
    mieux=0;
    error=zeros(1,maxfeat); %rempli d'erreur
    error(1,1)=1;
    feat_ajoute=zeros(1,maxfeat);
-   all_list=zeros(maxfeat,maxfeat);
+   all_list=zeros(maxfeat,maxfeat); %dans le temps
    
    %% on a fait la première partie youhou!!
     for N_chosen = 1:maxfeat
     
         if mieux==0
          N_run=N_chosen
-         
-%    selected_inside_index=zeros(1,N_inner);
-%    selected_inside_error=zeros(1,N_inner);
-%    selected_inside_feature=zeros(1,N_inner);
-        
-    %loop inner --> TRAIN + VALIDATION
-   % for inner_fold = 1:N_inner%loop for Ninner fold inner CV (train+validation error)
-        
-%         %separate train and validation set
-%         train_index = find(partition_inner.training(inner_fold)); %all train indexes
-%         validation_index = find(partition_inner.test(inner_fold)); %all validation indexes      
-%         train_features = features(train_index,:); %train of inner fold
-%         train_labels = labels(train_index); %train of inner fold
-%         validation_features = features(validation_index,:); %dont touch until validation error: test of inner fold
-%         validation_labels = labels(validation_index); %dont touch until validation error: test of inner fold$
-        
-        %selected_inside=zeros(1,1);
-         
+          
         %je test seulement les features  choisit)
         chosen_features=find(list_features);%chosen features sont ceux qui ont pas des zéros -> ceux qui on djja été choisit
         non_chosen_feat=find(list_features==0); %index/numéro des features non choissit sur total
@@ -85,10 +26,11 @@ maxfeat=size(features,1); %choisit
             
         for trie=1:size(non_chosen_feat,2)
             feat_to_try=[chosen_features,non_chosen_feat(:,trie)]; %j'y rajoute un qui n'était pas choisit
-           [mean_window,std_window,inside_error(trie),std_trial]=GetClassifierAccuracy(selected_data,Action,features(feat_to_try,:),alpha,limit771,limit773,Frequencies,Classifier);
+           [inside_error(trie),std_window,mean_trial,std_trial,mean_Confusion]=GetClassifierAccuracy(selected_data,Action,features(feat_to_try,:),alpha,limit771,limit773,Frequencies,Classifier);
         end
     
-        %je choisi le meilleur features a ajouter dans le folder
+        %je choisi le meilleur features a ajouter dans le folder en
+        %regardant SINGLE SAMPLE ACCURACY
          selected_inside_error=min(inside_error) %erreur min avec ajout
          index=find(inside_error==min(inside_error)) % si plusieurs fois meme valeur minimumm
          selected_inside_index=index %index du feature dans inside_error = index dans non_selected!
@@ -119,9 +61,9 @@ maxfeat=size(features,1); %choisit
         end        
    end       
            
-historyCrit=error(2:N_run);
-sel=list_features;
-historyIn=all_list(1:(N_run-1),:);
+historyCrit=error(1:N_run); %car error 1=1;
+selected_features=list_features;
+historyIn=all_list(1:N_run,:);
 
 end
 
