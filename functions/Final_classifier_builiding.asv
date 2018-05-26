@@ -15,11 +15,11 @@ Action2=ActionM(31:60,:);
 
 ActionTest=ActionM(31:end,:);
 
-% EventTrain=EventM(1:14193,1);
-% Event1=EventM(1:6722,1);
-% Event2=EventM(6723:13266,1);
-% 
-% EventTest=EventM(13267:end,1);
+EventTrain=EventM(1:14193,1);
+Event1=EventM(1:6722,1);
+Event2=EventM(6723:13266,1);
+
+EventTest=EventM(13267:end,1);
 
 
 %% Attention alpha doit etre penser en terme de practicité car sinon on a pas le temps
@@ -162,13 +162,10 @@ ylabel('Test error [%]')
 %% confusion matrix of optimal of each optimal classifier
 
 mean_Confusion=zeros(4,3,3);
-X=zeros(4,1);
-Y=zeros(4,1);
-AUC=zeros(4,1);
 
 for Classifier=1:4
 
-        [mean_window(i,Classifier),std_window,mean_trial(i,Classifier),std_trial,mean_Confusion(Classifier,:,:),AUC(Classifier)]=GetClassifierAccuracy(selected_data,ActionTrain,FFS_features{Classifier},OptimalAlpha(Classifier),limit771,limit773,Frequencies,Classifier);
+        [mean_window(i,Classifier),std_window,mean_trial(i,Classifier),std_trial,mean_Confusion(Classifier,:,:)]=GetClassifierAccuracy(selected_data,ActionTrain,FFS_features{Classifier},OptimalAlpha(Classifier),limit771,limit773,Frequencies,Classifier);
  
 end
 

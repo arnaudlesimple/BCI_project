@@ -1,4 +1,4 @@
-function [avg_s_s_accuracy,STD_s_s_accuracy,avg_trial_accuracy,STD_trial_accuracy,mean_Confusion,AUC] = GetClassifierAccuracy(selected_data,Action,features,alpha,limit771,limit773,Frequencies_set,Classifier)
+function [avg_s_s_accuracy,STD_s_s_accuracy,avg_trial_accuracy,STD_trial_accuracy,mean_Confusion] = GetClassifierAccuracy(selected_data,Action,features,alpha,limit771,limit773,Frequencies_set,Classifier)
 
 
 switch Classifier
@@ -61,8 +61,6 @@ single_sample_accuracy=zeros(K,1);
 trial_accuracy=zeros(K,1);
 Confusion_M=zeros(K,3,3);
 
-AUCwindow=[];
-
 for i=1:K
     %je veux avoir les windows des trials ensemble dans les sets
     
@@ -111,12 +109,8 @@ for i=1:K
     [Predicted_label,score,cost] = predict(classifier, testing_set); %score [771 773]
     
     
-    if sum(test_label(:,1)==771) ~=0 && sum(test_label(:,1)==773) ~=0
-        
-    [Xt,Yt,T,AUCt]=perfcurve(test_label(:,1),score(:,1),'771');
-
-     AUCwindow=[AUCwindow,AUCt];
-    end
+    if sum(test_label(:,1)==771) ~=0 & 
+    [Xwindow(i,:),Ywindow(i,:),T,AUCwindow(i)]=perfcurve(test_label(:,1),score(:,1),'771');
 
     single_sample_accuracy(i) =  error( test_label(:,1), Predicted_label);
 
@@ -164,7 +158,8 @@ end
      
      mean_Confusion=squeeze(mean(Confusion_M,1));
      
-
+    X=mean(Xwindow,2);
+    Y=mean(Ywindow,2);
     AUC=mean(AUCwindow);
 
 
