@@ -1,9 +1,11 @@
 clc
 clear all
 close all
+addpath(genpath('functions'))
 
 % Which files do you want to analyse ?
-files = 'Mathieu'; % Anonymous, Elise, Mathieu, Arnaud
+files = 'Elise'; % Anonymous, Elise, Mathieu, Arnaud
+file_type = 'online'; % offline, online
 % Do you want to compute the psd from raw data ?
 create_psd = false;
 
@@ -25,23 +27,21 @@ if create_psd
     SmallLaplacian=0;
     LargeLaplacian=1;
     DoLabel=1;
-    % do labe==1 if you want to do psd
+    % DoLabel==1 if you want to do psd
 
-    GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel, files)
+    GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel, files, file_type)
 end
 
 %% Initialization:
 
-addpath(genpath('functions'))
-
-frequencies = load(['SPD/' files '/Frequences.mat']);
-window_label = load(['SPD/' files '/WindowLabel.mat']);
+frequencies = load(['SPD/' files '/' file_type '/Frequences.mat']);
+window_label = load(['SPD/' files '/' file_type '/WindowLabel.mat']);
 
 % Load PSD estimates
-psd_small_laplacian = load(['SPD/' files '/SPD with SmallLaplacian Spatial filtre.mat']);
-psd_large_laplacian = load(['SPD/' files '/SPD with LargeLaplacian Spatial filtre.mat']);
-psd_CAR_filter = load(['SPD/' files '/SPD with CAR Spatial filtre.mat']);
-psd_no_spatial_filter = load(['SPD/' files '/SPD with NO Spatial filtre']);
+psd_small_laplacian = load(['SPD/' files '/' file_type '/SPD with SmallLaplacian Spatial filtre.mat']);
+psd_large_laplacian = load(['SPD/' files '/' file_type '/SPD with LargeLaplacian Spatial filtre.mat']);
+psd_CAR_filter = load(['SPD/' files '/' file_type '/SPD with CAR Spatial filtre.mat']);
+psd_no_spatial_filter = load(['SPD/' files '/' file_type '/SPD with NO Spatial filtre']);
 psd = {psd_small_laplacian, psd_large_laplacian, psd_CAR_filter, psd_no_spatial_filter}; %ALL PSD
 
 % Define interesting frequency bands
@@ -54,23 +54,23 @@ band = {mu_band, beta_band};
 window_frequency = 16;
 
 % Load the desired run
-run = 2;
-load(['SPD/' files '/WindowLabelRun.mat']);
+run = 3;
+load(['SPD/' files '/' file_type '/WindowLabelRun.mat']);
 if run > size(WindowLabelRun,1)
     error('The run you have chosen does not exist')
 else
     run_ind = [WindowLabelRun(run,1):WindowLabelRun(run,2)];
 end
 
-load(['SPD/' files '/Event Window.mat'])
+load(['SPD/' files '/' file_type '/Event Window.mat'])
 % Take only windows that correspond to the selected run
 Event_window = Event_window(find((Event_window(:,2) > run_ind(1)) & (Event_window(:,5) < run_ind(end))),:);
 
 % Choose the type of psd and frequency band 
 %psd_selected = psd_large_laplacian.psdt(run_ind,:,:);
 psd_selected = psd_small_laplacian.psdt;
-band_selected = mu_beta_band;
-name = 'Large Laplacian';
+band_selected = mu_band;
+name = 'Small Laplacian';
 
  
 

@@ -1,4 +1,4 @@
-function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel, files)
+function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel, files, file_type)
 
     %% Parameter
 
@@ -13,21 +13,39 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
     Map=load('projects_common_material/channel_location_16_10-20_mi.mat')
 
     addpath(genpath('projects_common_material/biosig'));
+
+    path = ['data/' files '/'];
+
+    filenames_offline = dir([path '*offline*']);
+    filenames_online = dir([path '*online*']);
     
-    if strcmp(files, 'Elise')
-        path = ['data/' files '/20180312/'];
-    elseif strcmp(files, 'Mathieu')
-        path = ['data/' files '/20180312/'];
-    elseif strcmp(files, 'Arnaud')
-        path = ['data/' files '/20180319/'];
-    elseif strcmp(files, 'Anonymous')
-        path = ['data/' files '/'];
+    % Initialization
+    if strcmp(file_type, 'offline')
+        filenames = filenames_offline;
+        if strcmp(files, 'Elise')
+            day_vec = [1 1];
+        elseif strcmp(files, 'Mathieu')
+            day_vec = [1 1 1 2 2 2 2 2 2];
+        elseif strcmp(files, 'Arnaud')
+            day_vec = [1 1 1 2 2];
+        elseif strcmp(files, 'Anonymous')
+            day_vec = [1 1 1];
+        end
+    elseif strcmp(file_type,'online')
+        filenames = filenames_online;
+        if strcmp(files, 'Elise')
+            day_vec = [1 1 2 2];
+        elseif strcmp(files, 'Mathieu')
+            day_vec = [1 1 1 2 2];
+        elseif strcmp(files, 'Arnaud')
+            day_vec = [1 1 1 2 2 2 2];
+        elseif strcmp(files, 'Anonymous')
+            day_vec = 1;
+        end
     end
 
-    % Initialization
-    filenames = dir([path '*offline*']);
-    [AllRec, sizeRec, Reclabel] = deal([],[],[]);
-    [info1, info2, info3] = deal([],[],[]); 
+    %[info1, info2, info3, info4, info5, info6, info7, info8, info9] = deal([],[],[],[],[],[],[],[],[]);
+    [AllRec, sizeRec, RunLabel, DayLabel] = deal([],[],[],[]);
 
     for file_num = 1:length(filenames)
         eval(['filename' mat2str(file_num) '= [''' path '''' ' ''' filenames(file_num).name '''];']);
@@ -37,21 +55,21 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
         % -> Define AllRec, sizeRec and Reclabel
         eval(['AllRec = [AllRec; rec' mat2str(file_num) '];']);
         eval(['sizeRec = [sizeRec, length(rec' mat2str(file_num) ')];']);
-        eval(['Reclabel = [Reclabel; ones(sizeRec(' mat2str(file_num) '),1) *' mat2str(file_num) '];']); 
+        eval(['RunLabel = [RunLabel; ones(sizeRec(' mat2str(file_num) '),1) *' mat2str(file_num) '];']); 
+        eval(['DayLabel = [DayLabel; ones(sizeRec(' mat2str(file_num) '),1) *' mat2str(day_vec(file_num)) '];']);
     end 
     
-    AllRecInit = [Reclabel, AllRec(:,[1:16])]; %without reference
+    AllRecInit = [RunLabel, AllRec(:,[1:16])]; %without reference
     % s: rows correspond to the samples
     %    first column is the filename label
     %    columns 2 to 17 -> 16 channels
     %    column 18 -> reference electrode %je l'enlève
 
     % Update position data
-    if ~isempty(info2)
-        info2.EVENT.POS = info2.EVENT.POS + length(rec1);
-    end
-    if ~isempty(info3)
-        info3.EVENT.POS = info3.EVENT.POS + length(rec2) + length(rec1);
+    add = 0;
+    for i = 2:length(filenames)
+        eval(['add = add + length(rec' mat2str(i-1) ');']);
+        eval(['info' mat2str(i) '.EVENT.POS = info' mat2str(i) '.EVENT.POS +' mat2str(add) ';']);
     end
 
     info.EVENT.TYP = [];
@@ -73,7 +91,7 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
     [b,a] = butter(4,[7,14]/sample_rate/2);
     fvtool(b,a)
     BandData = filter(b,a,AllRec(:,2:end)); %on prend pas colonne avec label
-    AllRecBand=[Reclabel,BandData];
+    AllRecBand=[Runlabel,BandData];
     end
 
     if beta_band == 1
@@ -81,7 +99,7 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
     [b,a] = butter(4,[15,35]/sample_rate/2);
     fvtool(b,a)
     BandData = filter(b,a,AllRec(:,2:end));
-    AllRecBand=[Reclabel,BandData];
+    AllRecBand=[Runlabel,BandData];
     end
 
     if beta_band ==0 && mu_band==0
@@ -99,7 +117,7 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
         used_channel=AllRecBand(:,2:end);
         moyenne=mean(used_channel,2);
 
-        FilteredData =[Reclabel, used_channel-moyenne];
+        FilteredData =[RunLabel, used_channel-moyenne];
 
         filtre='CAR';
     end
@@ -107,14 +125,14 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
     % Small Laplacian filtering
     if SmallLaplacian ==1   
         small_laplacian = load('small_laplacian.mat');
-        FilteredData = [Reclabel, AllRecBand(:,2:end) * small_laplacian.lap];
+        FilteredData = [RunLabel, AllRecBand(:,2:end) * small_laplacian.lap];
         filtre='SmallLaplacian';
     end
 
     % Large laplacian filter
     if LargeLaplacian ==1
         large_laplacian = load('large_laplacian.mat');
-        FilteredData = [Reclabel , AllRecBand(:,2:end) * large_laplacian.large_laplacian.lap];
+        FilteredData = [RunLabel , AllRecBand(:,2:end) * large_laplacian.large_laplacian.lap];
 
         filtre='LargeLaplacian';
     end
@@ -177,14 +195,20 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
          
     WindowLabelRun = [];
     for i=1:length(filenames)
-        LabelRun = find(Reclabel == i);
+        LabelRun = find(RunLabel == i);
         DebutRun(i)=find(window_end > LabelRun(1),1,'first'); %donne index donc deja le numero de la window!!
         FinRun(i)=find(window_start < LabelRun(end),1,'last');
-        WindowLabelRun=[WindowLabelRun; DebutRun(i),FinRun(i)];
-    end     
-         
+        WindowLabelRun=[WindowLabelRun; DebutRun(i),FinRun(i)];     
+    end   
     
-
+    WindowLabelDay = [];
+    for i=1:length(unique(DayLabel))
+        LabelDay = find(DayLabel == i);
+        DebutDay(i)=find(window_end > LabelDay(1),1,'first'); %donne index donc deja le numero de la window!!
+        FinDay(i)=find(window_start < LabelDay(end),1,'last');
+        WindowLabelDay=[WindowLabelDay; DebutDay(i),FinDay(i)];
+    end   
+    
     BoomTargetHit = 897;
     BoomTargetMiss = 898;
     BothHand = 773; % right cue
@@ -289,18 +313,19 @@ function GetPSD(beta_band, mu_band, CAR, SmallLaplacian, LargeLaplacian, DoLabel
     labelAction(Window_BoomTargetHit) = 897;
     labelAction(Window_BoomTargetMiss) = 898;
 
-    save(['functions\SPD\' files '\WindowLabel.mat'],'labelAction');
-    save(['functions\SPD\' files '\Frequences.mat'],'Frequencies');
+    save(['functions\SPD\' files '\' file_type '\WindowLabel.mat'],'labelAction');
+    save(['functions\SPD\' files '\' file_type '\Frequences.mat'],'Frequencies');
 
      end;
 
     %%
-    name= ['functions\SPD\' files '\SPD with ',filtre,' Spatial filtre.mat'];
+    name= ['functions\SPD\' files '\' file_type '\SPD with ',filtre,' Spatial filtre.mat'];
     save(name,'psdt');
 
-    save(['functions\SPD\' files '\Feet_Cue_window'],'Feet_Cue_window');
-    save(['functions\SPD\' files '\Hand_Cue_window'],'Hand_Cue_window');
-    save(['functions\SPD\' files '\Event Window'],'Event_window');
+    save(['functions\SPD\' files '\' file_type '\Feet_Cue_window'],'Feet_Cue_window');
+    save(['functions\SPD\' files '\' file_type '\Hand_Cue_window'],'Hand_Cue_window');
+    save(['functions\SPD\' files '\' file_type '\Event Window'],'Event_window');
     
-    save(['functions\SPD\' files '\WindowLabelRun'],'WindowLabelRun')
+    save(['functions\SPD\' files '\' file_type '\WindowLabelRun'],'WindowLabelRun')
+    save(['functions\SPD\' files '\' file_type '\WindowLabelDay'],'WindowLabelDay')
 end
