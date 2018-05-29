@@ -1,4 +1,4 @@
-function [avg_s_s_error,STD_s_s_error,avg_trial_error,STD_trial_error,FINAL] = ClassifierAccuracyOnNewSample(selected_data,ActionTest,ActionTrain,features,alpha,limit771,limit773,Frequencies_set,Classifier)
+function [avg_s_s_error,STD_s_s_error,avg_trial_error,STD_trial_error,FINAL,Confusion_M,Xwindow,Ywindow,AUCwindow] = ClassifierAccuracyOnNewSample(DataTest,DataTrain,ActionTest,ActionTrain,features,alpha,limit771,limit773,Frequencies_set,Classifier)
 
 
 switch Classifier
@@ -45,7 +45,7 @@ for i=1:length(start_feedback_Train)
     
     %j'extrais tout les features pour une cue
     for a=1:size(selected_features,1)
-    Window_single_feat_Train=[Window_single_feat_Train,selected_data(start_feedback_Train(i):end_feedback_Train(i),selected_features(a,1),selected_features(a,2))];
+    Window_single_feat_Train=[Window_single_feat_Train,DataTrain(start_feedback_Train(i):end_feedback_Train(i),selected_features(a,1),selected_features(a,2))];
     end
     
     
@@ -64,7 +64,7 @@ end
     
     %j'extrais tout les features pour une cue
     for a=1:size(selected_features,1)
-    Window_single_feat_Test=[Window_single_feat_Test,selected_data(start_feedback_Test(i):end_feedback_Test(i),selected_features(a,1),selected_features(a,2))];
+    Window_single_feat_Test=[Window_single_feat_Test,DataTest(start_feedback_Test(i):end_feedback_Test(i),selected_features(a,1),selected_features(a,2))];
     end
     
     
@@ -135,13 +135,7 @@ trial_error=zeros(1,1);
     
     [Xwindow,Ywindow,T,AUCwindow]=perfcurve(test_label(:,1),score(:,1),'771');
     
-    figure;
-    plot(Xwindow,Ywindow);
-    ylabel('True positive rate');
-    xlabel('False negative rate');
-    leg=['ROC curve of final classifier, AUC=' num2str(AUCwindow) '.']
-    legend(leg);
-    title('Final classifier ROC curve (window prediction)');
+
     
     
     single_sample_error =  error( test_label(:,1), Predicted_label);
@@ -175,7 +169,7 @@ trial_error=zeros(1,1);
         
      trial_error=error(TestTrialLabel,final_classification);
      
-    
+    Confusion_M = confusionmat(TestTrialLabel,final_classification,'Order',[0 771 773]);
 
 
      avg_s_s_error=mean(single_sample_error);

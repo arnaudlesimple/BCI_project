@@ -33,6 +33,7 @@ function discrimancy = GetDiscrimancyMap(psd, band, window_frequency, frequencie
     colorbar
     xlabel('channel')
     ylabel('frequency')
+    title('Discriminancy map');
     set(gca, 'YTick', frequencies.Frequencies(band), 'fontsize', 5)
     %set(gca, 'XTick', frequencies.Frequencies(band), 'fontsize', 5)
 end
